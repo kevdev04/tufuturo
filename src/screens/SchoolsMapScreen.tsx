@@ -13,7 +13,7 @@ type School = {
 };
 
 const HOST_BASE = 'https://tu-futuro-backend-production.up.railway.app';
-const API_URLS = [`${HOST_BASE}/escuelas`, `${HOST_BASE}/api/escuelas`];
+const API_URL = `${HOST_BASE}/api/escuelas`;
 
 const sampleData: Record<string, School[]> = {
   // Minimal sample to ensure the screen renders if API is unavailable
@@ -148,19 +148,12 @@ const SchoolsMapScreen: React.FC = () => {
       try {
         const carreraParam: string | undefined = career || route?.params?.carrera;
         const carreraQuery = encodeURIComponent(carreraParam || 'Biología');
-        let fetched = false;
-        for (const baseUrl of API_URLS) {
-          const url = `${baseUrl}?carrera=${carreraQuery}`;
-          const response = await fetch(url, { headers: { Accept: 'application/json' } });
-          if (response.ok) {
-            const json = await response.json();
-            const flattened = flattenSchoolsResponse(json);
-            if (isMounted) setSchools(flattened);
-            fetched = true;
-            break;
-          }
-        }
-        if (!fetched) throw new Error('HTTP 404');
+        const url = `${API_URL}?carrera=${carreraQuery}`;
+        const response = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const flattened = flattenSchoolsResponse(json);
+        if (isMounted) setSchools(flattened);
       } catch (error) {
         console.log('Failed to load schools from API. Using sample data.', error);
         if (isMounted) setSchools(flattenSchoolsResponse(sampleData as any));

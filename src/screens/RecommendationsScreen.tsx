@@ -10,11 +10,26 @@ const RecommendationsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const advice = route.params?.advice;
 
-  const hero = `https://images.unsplash.com/photo-1504384764586-bb4cdc1707b0?q=80&w=1600&auto=format&fit=crop`;
-  const getImageFor = (name?: string) => {
-    const key = encodeURIComponent((name || 'career').toLowerCase().split(' ').slice(0, 3).join(','));
-    return `https://source.unsplash.com/800x600/?${key}`;
+  const curatedImages: { match: RegExp; url: string }[] = [
+    { match: /(data|analyst|analytics|bi|ml|ai)/i, url: 'https://images.unsplash.com/photo-1518186233392-c232efbf2373?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(developer|engineer|software|frontend|backend|full.?stack|programmer)/i, url: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(designer|ux|ui|product)/i, url: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(nurse|health|clinic|hospital|salud|medic)/i, url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(teacher|profesor|education|school|mentor)/i, url: 'https://images.unsplash.com/photo-1529078155058-5d716f45d604?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(marketing|sales|venta|growth|seo|ads)/i, url: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(finance|account|contab|bank)/i, url: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(operations|logistic|supply|project manager)/i, url: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(social worker|community|social)/i, url: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(environment|ambiental|sustain)/i, url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop' },
+    { match: /(animal|vet|veterinary|rescue)/i, url: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=1600&auto=format&fit=crop' },
+  ];
+  const defaultHero = 'https://images.unsplash.com/photo-1504384764586-bb4cdc1707b0?q=80&w=1600&auto=format&fit=crop';
+  const pickImage = (name?: string): string => {
+    const n = name || '';
+    const hit = curatedImages.find(ci => ci.match.test(n));
+    return hit?.url || defaultHero;
   };
+  const hero = pickImage(advice?.careers?.[0]?.name);
 
   return (
     <ScrollView style={styles.container}>
@@ -31,7 +46,7 @@ const RecommendationsScreen: React.FC = () => {
       </View>
       {(advice?.careers || []).map((c: any, idx: number) => (
         <View key={idx} style={styles.careerCard}>
-          <Image source={{ uri: getImageFor(c.name) }} style={styles.careerImage} />
+          <Image source={{ uri: pickImage(c.name) }} style={styles.careerImage} />
           <View style={styles.careerBody}>
             <View style={styles.careerHeader}>
               <Ionicons name="briefcase-outline" size={18} color={violetTheme.colors.primary} />
@@ -65,9 +80,7 @@ const RecommendationsScreen: React.FC = () => {
           </View>
         </View>
       ))}
-      <Button variant="default" style={{ marginTop: 12 }} onPress={() => navigation.navigate('ExploreRoot' as never)}>
-        <Text style={{ color: violetTheme.colors.primaryForeground, fontWeight: '600' }}>Continuar al Explore</Text>
-      </Button>
+      {/* Single navigation CTA is in header; avoid duplicating action buttons */}
     </ScrollView>
   );
 };

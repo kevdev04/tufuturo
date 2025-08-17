@@ -9,7 +9,7 @@ import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 
 import { OnboardingProvider } from './src/context/OnboardingContext';
 
-import { AuthProvider } from './src/context/AuthContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 // Screens
 import HomeScreen from './src/screens/HomeScreen';
@@ -17,7 +17,6 @@ import LoginScreen from './src/screens/LoginScreen';
 import AssessmentGate from './src/screens/AssessmentGate';
 import ResultsScreen from './src/screens/DashboardScreen';
 import AccountScreen from './src/screens/AccountScreen';
-import ExploreScreen from './src/screens/ExploreScreen';
 import ExploreNavigator from './src/navigation/ExploreNavigator';
 import SchoolsMapScreen from './src/screens/SchoolsMapScreen';
 
@@ -80,7 +79,7 @@ const TabNavigator: React.FC = () => {
       <Tab.Screen
         name="Explore"
         component={ExploreNavigator}
-        options={{ title: 'Explore' }}
+        options={{ title: t('nav.explore') }}
       />
       <Tab.Screen
         name="Home"
@@ -90,9 +89,31 @@ const TabNavigator: React.FC = () => {
       <Tab.Screen
         name="SchoolsMap"
         component={SchoolsMapScreen}
-        options={{ title: 'Schools' }}
+        options={{ title: t('nav.schools') }}
       />
     </Tab.Navigator>
+  );
+};
+
+const RootStack: React.FC = () => {
+  const { t } = useLanguage();
+  const { user, initializing } = useAuth();
+  if (initializing) {
+    return null;
+  }
+  return (
+    <Stack.Navigator>
+      {!user ? (
+        <Stack.Screen name="Login" component={LoginScreen} options={{ title: t('nav.login') }} />
+      ) : (
+        <>
+          <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="Assessment" component={AssessmentGate} options={{ title: t('nav.assessment') }} />
+          <Stack.Screen name="Results" component={ResultsScreen} options={{ title: t('nav.results') }} />
+          <Stack.Screen name="Account" component={AccountScreen} options={{ title: t('nav.account') }} />
+        </>
+      )}
+    </Stack.Navigator>
   );
 };
 
@@ -103,13 +124,7 @@ export default function App() {
         <OnboardingProvider>
           <NavigationContainer>
             <StatusBar style="auto" />
-            <Stack.Navigator>
-              <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
-              <Stack.Screen name="Assessment" component={AssessmentGate} options={{ title: 'Assessment' }} />
-              <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Results' }} />
-              <Stack.Screen name="Account" component={AccountScreen} options={{ title: 'Account' }} />
-              <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
-            </Stack.Navigator>
+            <RootStack />
           </NavigationContainer>
         </OnboardingProvider>
       </AuthProvider>

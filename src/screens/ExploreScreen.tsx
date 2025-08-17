@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Image, Dimensions } from 'react-native';
 import { violetTheme } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 import { useOnboarding } from '../context/OnboardingContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -17,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 
 const ExploreScreen: React.FC = () => {
   const { volunteerPlan, riasecTop, riasecScores, location, learningPlan, setLearningPlan, setVolunteerPlan, setLocation } = useOnboarding();
+  const { t } = useLanguage();
   const route = useRoute<any>();
   const [jobs, setJobs] = useState<any[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
@@ -317,8 +319,8 @@ const ExploreScreen: React.FC = () => {
       {/* 3. Oportunidades (Jobs) - carousels by category */}
         <Card style={styles.card}>
           <CardHeader>
-            <CardTitle>Oportunidades</CardTitle>
-            <CardDescription>Roles alineados a tu perfil</CardDescription>
+            <CardTitle>{t('explore.jobsTitle')}</CardTitle>
+            <CardDescription>{t('explore.jobsSubtitle')}</CardDescription>
           </CardHeader>
           <CardContent>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
@@ -327,7 +329,7 @@ const ExploreScreen: React.FC = () => {
                 style={[styles.tab, onlyLinkedIn && styles.tabActive]}
               >
                 <Ionicons name="logo-linkedin" size={16} color={onlyLinkedIn ? violetTheme.colors.primaryForeground : violetTheme.colors.primary} />
-                <Text style={[styles.tabText, onlyLinkedIn && styles.tabTextActive]}>Solo LinkedIn</Text>
+                <Text style={[styles.tabText, onlyLinkedIn && styles.tabTextActive]}>{t('explore.onlyLinkedIn')}</Text>
               </TouchableOpacity>
             </View>
             {jobsLoading && <Text style={styles.placeholder}>Cargando...</Text>}
@@ -367,8 +369,8 @@ const ExploreScreen: React.FC = () => {
       {/* 4. Volunteer - carousels by category */}
         <Card style={styles.card}>
           <CardHeader>
-            <CardTitle>Volunteer opportunities</CardTitle>
-            <CardDescription>Personalized with your categories</CardDescription>
+            <CardTitle>{t('explore.volunteerTitle')}</CardTitle>
+            <CardDescription>{t('explore.volunteerSubtitle')}</CardDescription>
           </CardHeader>
           <CardContent>
             {volsLoading && <Text style={styles.placeholder}>Cargando...</Text>}

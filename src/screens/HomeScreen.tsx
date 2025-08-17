@@ -72,17 +72,17 @@ const HomeScreen: React.FC = () => {
   }, [navigation]);
 
   const drawerItems: SideDrawerItem[] = [
-    { label: 'Explore', icon: 'compass-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Explore' as never); } },
-    { label: 'Home', icon: 'home-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Home' as never); } },
-    { label: 'Schools Map', icon: 'school-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
-    { label: 'Assessment', icon: 'podium-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Assessment' as never); } },
-    { label: 'Results', icon: 'analytics-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Results' as never); } },
-    { label: 'Account', icon: 'person-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Account' as never); } },
+    { label: t('nav.explore'), icon: 'compass-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Explore' as never); } },
+    { label: t('nav.home'), icon: 'home-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Home' as never); } },
+    { label: t('nav.schools'), icon: 'school-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
+    { label: t('nav.assessment'), icon: 'podium-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Assessment' as never); } },
+    { label: t('nav.results'), icon: 'analytics-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Results' as never); } },
+    { label: t('nav.account'), icon: 'person-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Account' as never); } },
   ];
   if (user) {
-    drawerItems.push({ label: 'Sign Out', icon: 'log-out-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } });
+    drawerItems.push({ label: t('nav.signOut'), icon: 'log-out-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } });
   } else {
-    drawerItems.push({ label: 'Sign In', icon: 'log-in-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } });
+    drawerItems.push({ label: t('nav.signIn'), icon: 'log-in-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } });
   }
 
   const stats = [
@@ -678,8 +678,8 @@ const HomeScreen: React.FC = () => {
         {/* Áreas y Carreras */}
         <Card style={styles.sectionCard}>
           <CardHeader>
-            <CardTitle>Carreras</CardTitle>
-            <CardDescription>Explora algunas opciones</CardDescription>
+            <CardTitle>{t('explore.careersTitle')}</CardTitle>
+            <CardDescription>{t('explore.careersSubtitle')}</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Areas chips */}
@@ -711,7 +711,7 @@ const HomeScreen: React.FC = () => {
               onPress={() => navigation.navigate('Schools', { carrera: selectedCareer || careers[0] })}
               disabled={(selectedCareer || careers[0]) ? false : true}
             >
-              Ver en mapa
+              {t('explore.viewOnMap')}
             </Button>
           </CardContent>
         </Card>
@@ -719,8 +719,8 @@ const HomeScreen: React.FC = () => {
         {/* Oportunidades (preview) */}
         <Card style={styles.sectionCard}>
           <CardHeader>
-            <CardTitle>Oportunidades</CardTitle>
-            <CardDescription>Alineadas a tu perfil</CardDescription>
+            <CardTitle>{t('explore.jobsTitle')}</CardTitle>
+            <CardDescription>{t('explore.jobsSubtitle')}</CardDescription>
           </CardHeader>
           <CardContent>
             {jobsLoading ? (
@@ -740,7 +740,7 @@ const HomeScreen: React.FC = () => {
               </View>
             )}
             <Button variant="default" size="sm" style={{ marginTop: 8 }} onPress={() => navigation.navigate('Explore')}>
-              Ver más
+              {t('explore.viewMore')}
             </Button>
           </CardContent>
         </Card>
@@ -749,7 +749,7 @@ const HomeScreen: React.FC = () => {
         {selectedCareer && subareas.length > 0 && (
           <Card style={styles.sectionCard}>
             <CardHeader>
-              <CardTitle>Subáreas</CardTitle>
+              <CardTitle>{t('explore.subareasTitle')}</CardTitle>
               <CardDescription>{selectedArea ? `${selectedArea} · ${selectedCareer}` : selectedCareer}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -774,7 +774,7 @@ const HomeScreen: React.FC = () => {
         {selectedCareer && (
           <Card style={styles.sectionCard}>
             <CardHeader>
-              <CardTitle>Costos por escuela</CardTitle>
+              <CardTitle>{t('explore.costsTitle')}</CardTitle>
               <CardDescription>{selectedCareer}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -810,8 +810,8 @@ const HomeScreen: React.FC = () => {
         {dashboardStats.length > 0 && (
           <Card style={styles.sectionCard}>
             <CardHeader>
-              <CardTitle>Dashboard</CardTitle>
-              <CardDescription>Promedio por carrera</CardDescription>
+              <CardTitle>{t('explore.dashboardTitle')}</CardTitle>
+              <CardDescription>{t('explore.dashboardSubtitle')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -895,7 +895,7 @@ const HomeScreen: React.FC = () => {
         visible={menuOpen}
         onClose={() => setMenuOpen(false)}
         user={user}
-        title="Menu"
+        title={t('common.menu')}
         items={drawerItems}
       />
     </SafeAreaView>

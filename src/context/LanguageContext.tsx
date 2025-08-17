@@ -15,9 +15,15 @@ const translations = {
   en: {
     // Navigation
     'nav.home': 'Home',
+    'nav.explore': 'Explore',
+    'nav.schools': 'Schools',
+    'nav.assessment': 'Assessment',
+    'nav.results': 'Results',
+    'nav.account': 'Account',
+    'nav.signIn': 'Sign In',
+    'nav.signOut': 'Sign Out',
     'nav.login': 'Login',
     'nav.form': 'Assessment',
-    'nav.results': 'Results',
     
     // Home Screen
     'home.welcome': 'Welcome to Your Future',
@@ -81,6 +87,35 @@ const translations = {
     'results.explore': 'Explore',
     'results.loadMore': 'Discover More Careers',
     
+    // Explore
+    'explore.studyTitle': 'Study offers',
+    'explore.studySubtitle': 'Programs and courses based on your interests',
+    'explore.generatePlan': 'Generate introductory plan',
+    'explore.lessonsTitle': 'Lessons',
+    'explore.lessonsSubtitle': 'Start with the next modules in your plan',
+    'explore.jobsTitle': 'Opportunities',
+    'explore.jobsSubtitle': 'Roles aligned to your profile',
+    'explore.onlyLinkedIn': 'LinkedIn only',
+    'explore.volunteerTitle': 'Volunteer opportunities',
+    'explore.volunteerSubtitle': 'Personalized with your categories',
+    'explore.apply': 'Apply',
+    'explore.open': 'Open',
+    'explore.viewMore': 'View more',
+    'explore.careersTitle': 'Careers',
+    'explore.careersSubtitle': 'Explore some options',
+    'explore.viewOnMap': 'View on map',
+    'explore.subareasTitle': 'Subareas',
+    'explore.costsTitle': 'Costs per school',
+    'explore.dashboardTitle': 'Dashboard',
+    'explore.dashboardSubtitle': 'Average per career',
+
+    // Recommendations
+    'recommendations.title': 'Career Recommendations',
+    'recommendations.explore': 'Explore',
+    'recommendations.courses': 'Courses',
+    'recommendations.jobs': 'Jobs',
+    'recommendations.volunteer': 'Volunteer',
+
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -92,13 +127,20 @@ const translations = {
     'common.yes': 'Yes',
     'common.no': 'No',
     'common.close': 'Close',
+    'common.menu': 'Menu',
   },
   es: {
     // Navigation
     'nav.home': 'Inicio',
+    'nav.explore': 'Explorar',
+    'nav.schools': 'Escuelas',
+    'nav.assessment': 'Evaluación',
+    'nav.results': 'Resultados',
+    'nav.account': 'Cuenta',
+    'nav.signIn': 'Iniciar sesión',
+    'nav.signOut': 'Cerrar sesión',
     'nav.login': 'Iniciar Sesión',
     'nav.form': 'Evaluación',
-    'nav.results': 'Resultados',
     
     // Home Screen
     'home.welcome': 'Bienvenido a Tu Futuro',
@@ -162,6 +204,35 @@ const translations = {
     'results.explore': 'Explorar',
     'results.loadMore': 'Descubrir Más Carreras',
     
+    // Explore
+    'explore.studyTitle': 'Ofertas de estudio',
+    'explore.studySubtitle': 'Programas y cursos según tus intereses',
+    'explore.generatePlan': 'Generar plan introductorio',
+    'explore.lessonsTitle': 'Lecciones',
+    'explore.lessonsSubtitle': 'Comienza con los siguientes módulos de tu plan',
+    'explore.jobsTitle': 'Oportunidades',
+    'explore.jobsSubtitle': 'Roles alineados a tu perfil',
+    'explore.onlyLinkedIn': 'Solo LinkedIn',
+    'explore.volunteerTitle': 'Oportunidades de voluntariado',
+    'explore.volunteerSubtitle': 'Personalizadas con tus categorías',
+    'explore.apply': 'Aplicar',
+    'explore.open': 'Abrir',
+    'explore.viewMore': 'Ver más',
+    'explore.careersTitle': 'Carreras',
+    'explore.careersSubtitle': 'Explora algunas opciones',
+    'explore.viewOnMap': 'Ver en mapa',
+    'explore.subareasTitle': 'Subáreas',
+    'explore.costsTitle': 'Costos por escuela',
+    'explore.dashboardTitle': 'Panel',
+    'explore.dashboardSubtitle': 'Promedio por carrera',
+
+    // Recommendations
+    'recommendations.title': 'Recomendaciones de carrera',
+    'recommendations.explore': 'Explorar',
+    'recommendations.courses': 'Cursos',
+    'recommendations.jobs': 'Empleos',
+    'recommendations.volunteer': 'Voluntariado',
+
     // Common
     'common.loading': 'Cargando...',
     'common.error': 'Error',
@@ -173,6 +244,7 @@ const translations = {
     'common.yes': 'Sí',
     'common.no': 'No',
     'common.close': 'Cerrar',
+    'common.menu': 'Menú',
   }
 };
 

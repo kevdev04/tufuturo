@@ -4,11 +4,13 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { violetTheme } from '../theme/colors';
 import Button from '../components/ui/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const RecommendationsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const advice = route.params?.advice;
+  const { t } = useLanguage();
 
   const curatedImages: { match: RegExp; url: string }[] = [
     { match: /(data|analyst|analytics|bi|ml|ai)/i, url: 'https://images.unsplash.com/photo-1518186233392-c232efbf2373?q=80&w=1600&auto=format&fit=crop' },
@@ -36,12 +38,12 @@ const RecommendationsScreen: React.FC = () => {
       <Image source={{ uri: hero }} style={styles.hero} />
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{advice?.title || 'Career Recommendations'}</Text>
+          <Text style={styles.title}>{advice?.title || t('recommendations.title')}</Text>
           {!!advice?.summary && <Text style={styles.summary}>{advice.summary}</Text>}
         </View>
         <Button variant="outline" onPress={() => navigation.navigate('ExploreRoot' as never)}>
           <Ionicons name="compass-outline" size={16} color={violetTheme.colors.primary} />
-          <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Explorar</Text>
+          <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>{t('recommendations.explore')}</Text>
         </Button>
       </View>
       {(advice?.careers || []).map((c: any, idx: number) => (
@@ -66,15 +68,15 @@ const RecommendationsScreen: React.FC = () => {
             <View style={styles.cardActions}>
               <Button variant="ghost" size="sm">
                 <Ionicons name="school-outline" size={16} color={violetTheme.colors.primary} />
-                <Text style={styles.actionText}>Cursos</Text>
+                <Text style={styles.actionText}>{t('recommendations.courses')}</Text>
               </Button>
               <Button variant="ghost" size="sm">
                 <Ionicons name="briefcase-outline" size={16} color={violetTheme.colors.primary} />
-                <Text style={styles.actionText}>Empleos</Text>
+                <Text style={styles.actionText}>{t('recommendations.jobs')}</Text>
               </Button>
               <Button variant="ghost" size="sm">
                 <Ionicons name="hand-left-outline" size={16} color={violetTheme.colors.primary} />
-                <Text style={styles.actionText}>Voluntariado</Text>
+                <Text style={styles.actionText}>{t('recommendations.volunteer')}</Text>
               </Button>
             </View>
           </View>

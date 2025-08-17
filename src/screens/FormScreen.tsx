@@ -269,10 +269,8 @@ const FormScreen: React.FC = () => {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.screenHeader}>
           <Text style={{ color: violetTheme.colors.muted, fontWeight: '600' }}>Paso 2 de 2</Text>
-          <Text style={styles.screenTitle}>Career Assessment</Text>
-          <Text style={styles.screenSubtitle}>
-            Tell us about yourself to get personalized career recommendations
-          </Text>
+          <Text style={styles.screenTitle}>{t('form.title')}</Text>
+          <Text style={styles.screenSubtitle}>{t('form.subtitle')}</Text>
         </View>
             {/* Location Section */}
             <View style={styles.section}>
@@ -324,7 +322,7 @@ const FormScreen: React.FC = () => {
                     styles.dropdownText,
                     !formData.education && styles.dropdownPlaceholder
                   ]}>
-                    {formData.education || 'Select your education level'}
+                    {formData.education || t('form.professional.educationPlaceholder')}
                   </Text>
                   <Ionicons name="chevron-down" size={20} color={violetTheme.colors.muted} />
                 </View>
@@ -333,16 +331,16 @@ const FormScreen: React.FC = () => {
 
             {/* Skills Section */}
             {renderSelectableGrid(
-              'Skills',
-              'Please select two or more to proceed',
+              t('form.skills.skills'),
+              t('form.skills.skillsPlaceholder'),
               skillsOptions,
               'skills'
             )}
 
             {/* Interests Section */}
             {renderSelectableGrid(
-              'Interests',
-              'Please select two or more to proceed',
+              t('form.skills.interests'),
+              t('form.skills.interestsPlaceholder'),
               interestsOptions,
               'interests'
             )}
@@ -351,9 +349,9 @@ const FormScreen: React.FC = () => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="podium-outline" size={20} color={violetTheme.colors.primary} />
-                <Text style={styles.sectionTitle}>Perfil vocacional</Text>
+                <Text style={styles.sectionTitle}>{t('form.title')}</Text>
               </View>
-              <Text style={styles.sectionSubtitle}>Responde el test para perfilar recomendaciones</Text>
+              <Text style={styles.sectionSubtitle}>{t('form.subtitle')}</Text>
               <RIASECAssessment
                 onComplete={(scores, top, answered) => {
                   setRiasec(scores);
@@ -380,7 +378,7 @@ const FormScreen: React.FC = () => {
                 onPress={handleSubmit}
               >
                 <Ionicons name="sparkles" size={20} color={violetTheme.colors.primaryForeground} />
-                <Text style={styles.submitButtonText}>Get Career Recommendations</Text>
+                <Text style={styles.submitButtonText}>{t('form.submit')}</Text>
               </Button>
             </View>
       

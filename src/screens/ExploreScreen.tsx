@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { violetTheme } from '../theme/colors';
 import { useOnboarding } from '../context/OnboardingContext';
@@ -10,6 +10,9 @@ import ModuleCard from '../components/learning/ModuleCard';
 import GeminiService from '../services/gemini';
 import Input from '../components/ui/Input';
 import GeminiStatusButton from '../components/learning/GeminiStatusButton';
+import SideDrawer from '../components/SideDrawer';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 
 const ExploreScreen: React.FC = () => {
   const { volunteerPlan, riasecTop, location, learningPlan, setLearningPlan, setVolunteerPlan, setLocation } = useOnboarding();
@@ -24,6 +27,19 @@ const ExploreScreen: React.FC = () => {
   const [studyLoading, setStudyLoading] = useState(false);
   const [kwChips, setKwChips] = useState<{ label: string; selected: boolean }[]>([]);
   const [locInput, setLocInput] = useState<string>(location || '');
+  const navigation = useNavigation<any>();
+  const { user, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setMenuOpen(true)} accessibilityLabel="Open menu" style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+          <Ionicons name="menu" size={22} color={violetTheme.colors.primary} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const loadVolunteer = async () => {
     setVolsLoading(true);
@@ -117,6 +133,7 @@ const ExploreScreen: React.FC = () => {
   }, [kwChips, locInput]);
 
   return (
+    <>
     <ScrollView style={styles.container}>
       {/* 1. Study */}
         <Card style={styles.card}>
@@ -264,6 +281,19 @@ const ExploreScreen: React.FC = () => {
         </Card>
       
     </ScrollView>
+    <SideDrawer
+      visible={menuOpen}
+      onClose={() => setMenuOpen(false)}
+      user={user}
+      title="Menu"
+      items={[
+        { label: 'Explore', icon: 'compass-outline', onPress: () => { setMenuOpen(false); } },
+        { label: 'Schools Map', icon: 'school-outline', onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
+        { label: 'Assessment', icon: 'podium-outline', onPress: () => { setMenuOpen(false); navigation.navigate('Assessment' as never); } },
+        user ? { label: 'Sign Out', icon: 'log-out-outline', color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } } : { label: 'Sign In', icon: 'log-in-outline', color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.navigate('Login' as never); } },
+      ]}
+    />
+    </>
   );
 };
 

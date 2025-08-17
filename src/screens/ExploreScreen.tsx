@@ -270,7 +270,7 @@ const ExploreScreen: React.FC = () => {
                   }}
                   loading={studyLoading}
                 >
-                  Generar plan introductorio
+                  Generar plan de estudio
                 </Button>
               </>
             )}

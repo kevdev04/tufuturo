@@ -439,20 +439,28 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
         <View style={styles.sideMenuDivider} />
-        {/* Dynamic links */}
+        {/* Dynamic links: tabs and extra stack screens */}
         <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Explore'); }}>
           <Ionicons name="compass-outline" size={18} color={violetTheme.colors.foreground} />
           <Text style={styles.sideMenuItemText}>Explore</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Home'); }}>
+          <Ionicons name="home-outline" size={18} color={violetTheme.colors.foreground} />
+          <Text style={styles.sideMenuItemText}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('SchoolsMap'); }}>
           <Ionicons name="school-outline" size={18} color={violetTheme.colors.foreground} />
           <Text style={styles.sideMenuItemText}>Schools Map</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Assessment'); }}>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.getParent()?.navigate('Assessment'); }}>
           <Ionicons name="podium-outline" size={18} color={violetTheme.colors.foreground} />
           <Text style={styles.sideMenuItemText}>{riasecScores ? 'Retake Assessment' : 'Start Assessment'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Account'); }}>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.getParent()?.navigate('Results'); }}>
+          <Ionicons name="analytics-outline" size={18} color={violetTheme.colors.foreground} />
+          <Text style={styles.sideMenuItemText}>Results</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.getParent()?.navigate('Account'); }}>
           <Ionicons name="person-outline" size={18} color={violetTheme.colors.foreground} />
           <Text style={styles.sideMenuItemText}>Account</Text>
         </TouchableOpacity>
@@ -463,7 +471,7 @@ const HomeScreen: React.FC = () => {
             <Text style={[styles.sideMenuItemText, { color: violetTheme.colors.danger }]}>Sign Out</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Login'); }}>
+          <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.getParent()?.navigate('Login'); }}>
             <Ionicons name="log-in-outline" size={18} color={violetTheme.colors.primary} />
             <Text style={[styles.sideMenuItemText, { color: violetTheme.colors.primary }]}>Sign In</Text>
           </TouchableOpacity>

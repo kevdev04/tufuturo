@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { violetTheme } from './src/theme/colors';
@@ -21,6 +22,7 @@ import SchoolsMapScreen from './src/screens/SchoolsMapScreen';
 
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 const TabNavigator: React.FC = () => {
   const { t } = useLanguage();
@@ -100,7 +102,13 @@ export default function App() {
         <OnboardingProvider>
           <NavigationContainer>
             <StatusBar style="auto" />
-            <TabNavigator />
+            <Stack.Navigator>
+              <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
+              <Stack.Screen name="Assessment" component={AssessmentGate} options={{ title: 'Assessment' }} />
+              <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Results' }} />
+              <Stack.Screen name="Account" component={AccountScreen} options={{ title: 'Account' }} />
+              <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
+            </Stack.Navigator>
           </NavigationContainer>
         </OnboardingProvider>
       </AuthProvider>

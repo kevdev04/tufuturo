@@ -287,10 +287,13 @@ const ExploreScreen: React.FC = () => {
       user={user}
       title="Menu"
       items={[
-        { label: 'Explore', icon: 'compass-outline', onPress: () => { setMenuOpen(false); } },
+        { label: 'Explore', icon: 'compass-outline', onPress: () => { setMenuOpen(false); navigation.navigate('Explore' as never); } },
+        { label: 'Home', icon: 'home-outline', onPress: () => { setMenuOpen(false); navigation.navigate('Home' as never); } },
         { label: 'Schools Map', icon: 'school-outline', onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
-        { label: 'Assessment', icon: 'podium-outline', onPress: () => { setMenuOpen(false); navigation.navigate('Assessment' as never); } },
-        user ? { label: 'Sign Out', icon: 'log-out-outline', color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } } : { label: 'Sign In', icon: 'log-in-outline', color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.navigate('Login' as never); } },
+        { label: 'Assessment', icon: 'podium-outline', onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Assessment' as never); } },
+        { label: 'Results', icon: 'analytics-outline', onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Results' as never); } },
+        { label: 'Account', icon: 'person-outline', onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Account' as never); } },
+        ...(user ? [{ label: 'Sign Out', icon: 'log-out-outline', color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } }] : [{ label: 'Sign In', icon: 'log-in-outline', color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } }]),
       ]}
     />
     </>

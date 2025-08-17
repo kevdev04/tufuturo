@@ -104,9 +104,10 @@ const ExploreScreen: React.FC = () => {
   const loadVolunteer = async () => {
     setVolsLoading(true);
     try {
-      const filters: any = { location: 'cdmx' };
+      const filters: any = { location: 'mx' };
       if (volunteerPlan?.categories?.length) filters.career = volunteerPlan.categories;
-      if (volunteerPlan?.suggestedKeywords?.length) filters.keywords = volunteerPlan.suggestedKeywords;
+      const kw = [...(volunteerPlan?.suggestedKeywords || [])].filter(Boolean);
+      if (kw.length) filters.keywords = Array.from(new Set(kw));
       const resp = await mcp.volunteer.mxSearch({ filters });
       const arr = extractResultsArray(resp).map((x: any, i: number) => normalizeVolunteerOpportunity(x, i));
       setVols(arr);

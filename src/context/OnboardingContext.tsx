@@ -7,6 +7,12 @@ export interface VolunteerPlan {
   rationale?: string;
 }
 
+export interface CareerRecommendation {
+  name: string;
+  why: string;
+  nextSteps: string[];
+}
+
 export interface ProfileData {
   name?: string;
   email?: string;
@@ -25,6 +31,7 @@ interface OnboardingState {
   volunteerPlan?: VolunteerPlan;
   riasecTop?: string[];
   location?: string;
+  recommendations?: CareerRecommendation[];
   learningPlan?: {
     track: string;
     modules: {
@@ -49,6 +56,7 @@ interface OnboardingContextType extends OnboardingState {
   setVolunteerPlan: (plan: VolunteerPlan | undefined) => Promise<void>;
   setRiasecTop: (dims: string[] | undefined) => Promise<void>;
   setLocation: (loc: string | undefined) => Promise<void>;
+  setRecommendations: (recs: CareerRecommendation[] | undefined) => Promise<void>;
   setLearningPlan: (plan: OnboardingState['learningPlan'] | undefined) => Promise<void>;
   setProfile: (data: ProfileData | undefined) => Promise<void>;
   setRiasecScores: (scores: OnboardingState['riasecScores']) => Promise<void>;
@@ -69,6 +77,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     volunteerPlan: undefined,
     riasecTop: undefined,
     location: undefined,
+    recommendations: undefined,
     learningPlan: undefined,
     profile: undefined,
     riasecScores: undefined,
@@ -97,6 +106,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const setVolunteerPlan = async (plan?: VolunteerPlan) => persist({ ...state, volunteerPlan: plan });
   const setRiasecTop = async (dims?: string[]) => persist({ ...state, riasecTop: dims });
   const setLocation = async (loc?: string) => persist({ ...state, location: loc });
+  const setRecommendations = async (recs?: CareerRecommendation[]) => persist({ ...state, recommendations: recs });
   const setLearningPlan = async (plan?: OnboardingState['learningPlan']) => persist({ ...state, learningPlan: plan });
   const setProfile = async (data?: ProfileData) => persist({ ...state, profile: data });
   const setRiasecScores = async (scores?: OnboardingState['riasecScores']) => persist({ ...state, riasecScores: scores });
@@ -113,6 +123,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setVolunteerPlan,
       setRiasecTop,
       setLocation,
+      setRecommendations,
       setLearningPlan,
       setProfile,
       setRiasecScores,

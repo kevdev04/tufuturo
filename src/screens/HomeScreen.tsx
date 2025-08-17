@@ -281,10 +281,17 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     const fetchFromMcp = async () => {
       try {
-        // Prefer localized opportunities for MX with personalized filters
-        const filters: any = { location: 'cdmx' };
-        if (volunteerPlan?.categories?.length) filters.career = volunteerPlan.categories;
-        if (volunteerPlan?.suggestedKeywords?.length) filters.keywords = volunteerPlan.suggestedKeywords;
+        // México + filtros basados en selección e intereses
+        const filters: any = { location: 'mx' };
+        // Carrera preferente: selección en Home o plan
+        const chosenCareer = selectedCareer || (volunteerPlan?.categories?.[0]);
+        if (chosenCareer) filters.career = [chosenCareer];
+        // Keywords: área/carrera/subárea + plan
+        const kw = [selectedArea, selectedCareer, selectedSubarea, ...(volunteerPlan?.suggestedKeywords || [])]
+          .filter((v): v is string => typeof v === 'string' && v.trim().length > 0);
+        if (kw.length) filters.keywords = Array.from(new Set(kw));
+        // Ciudad si el usuario tiene una en contexto
+        if (location && typeof location === 'string' && location.trim()) filters.city = location.trim();
         const mx = await mcp.volunteer.mxSearch({ filters });
         const items = extractResultsArray(mx);
 

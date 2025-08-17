@@ -12,6 +12,7 @@ export function useVoiceAssistant(options?: UseVoiceAssistantOptions) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<Recognition | null>(null);
+  const [voiceId, setVoiceId] = useState<string | undefined>(undefined);
 
   const supportsListening = useMemo(() => {
     if (typeof window === 'undefined') return false;
@@ -26,6 +27,9 @@ export function useVoiceAssistant(options?: UseVoiceAssistantOptions) {
       setIsSpeaking(true);
       Speech.speak(text, {
         language,
+        voice: voiceId,
+        rate: 0.98,
+        pitch: 1.0,
         onDone: () => setIsSpeaking(false),
         onStopped: () => setIsSpeaking(false),
         onError: () => setIsSpeaking(false),
@@ -33,7 +37,7 @@ export function useVoiceAssistant(options?: UseVoiceAssistantOptions) {
     } catch (_e) {
       setIsSpeaking(false);
     }
-  }, [language]);
+  }, [language, voiceId]);
 
   const stop = useCallback(() => {
     try { Speech.stop(); } catch {}
@@ -68,6 +72,22 @@ export function useVoiceAssistant(options?: UseVoiceAssistantOptions) {
   }, [language, supportsListening]);
 
   useEffect(() => () => { try { Speech.stop(); } catch {} }, []);
+
+  // Pick the best available voice for the selected language on native platforms
+  useEffect(() => {
+    (async () => {
+      try {
+        const voices = await (Speech as any).getAvailableVoicesAsync?.();
+        if (Array.isArray(voices)) {
+          // Prefer exact locale match, then language prefix
+          const exact = voices.find((v: any) => v?.language?.toLowerCase() === language.toLowerCase());
+          const partial = voices.find((v: any) => (v?.language || '').toLowerCase().startsWith(language.split('-')[0].toLowerCase()));
+          const chosen = exact || partial;
+          if (chosen?.identifier) setVoiceId(chosen.identifier);
+        }
+      } catch {}
+    })();
+  }, [language]);
 
   return { speak, stop, isSpeaking, listenOnce, isListening, supportsListening };
 }

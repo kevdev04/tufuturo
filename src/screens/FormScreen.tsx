@@ -18,6 +18,7 @@ import Input from '../components/ui/Input';
 import { useLanguage } from '../context/LanguageContext';
 import RIASECAssessment, { RiasecScores } from '../components/assessment/RIASECAssessment';
 import GeminiService, { generateCareerAdvice } from '../services/gemini';
+import { useNavigation } from '@react-navigation/native';
 import { useOnboarding } from '../context/OnboardingContext';
 
 const FormScreen: React.FC = () => {
@@ -36,6 +37,7 @@ const FormScreen: React.FC = () => {
   const [adviceVisible, setAdviceVisible] = useState(false);
   const [advice, setAdvice] = useState<{ title: string; summary: string; careers: { name: string; why: string; nextSteps: string[] }[] } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const navigation = useNavigation<any>();
   const {
     setAssessmentCompleted,
     setVolunteerPlan,
@@ -177,7 +179,8 @@ const FormScreen: React.FC = () => {
         location: formData.location,
       });
       setAdvice(adviceResp);
-      setAdviceVisible(true);
+      setAdviceVisible(false);
+      navigation.navigate('Recommendations' as never, { advice: adviceResp } as never);
     } catch (err: any) {
       console.error('Gemini error:', err);
       Alert.alert('No se pudo generar sugerencias', String(err?.message || err));

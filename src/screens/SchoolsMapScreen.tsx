@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import { violetTheme } from '../theme/colors';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 type School = {
   name: string;
@@ -13,7 +13,7 @@ type School = {
 };
 
 const HOST_BASE = 'https://tu-futuro-backend-production.up.railway.app';
-const API_URLS = [`${HOST_BASE}/escuelas`, `${HOST_BASE}/api/escuelas`];
+const API_URL = `${HOST_BASE}/escuelas`;
 
 const sampleData: Record<string, School[]> = {
   // Minimal sample to ensure the screen renders if API is unavailable
@@ -138,9 +138,13 @@ const defaultRegion: Region = {
 
 const SchoolsMapScreen: React.FC = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  // query state used for fetching
   const [career, setCareer] = useState<string>(route?.params?.carrera ?? 'Biología');
+  // input state used while typing (does not trigger fetch)
+  const [searchText, setSearchText] = useState<string>(route?.params?.carrera ?? 'Biología');
 
   useEffect(() => {
     let isMounted = true;
@@ -148,19 +152,12 @@ const SchoolsMapScreen: React.FC = () => {
       try {
         const carreraParam: string | undefined = career || route?.params?.carrera;
         const carreraQuery = encodeURIComponent(carreraParam || 'Biología');
-        let fetched = false;
-        for (const baseUrl of API_URLS) {
-          const url = `${baseUrl}?carrera=${carreraQuery}`;
-          const response = await fetch(url, { headers: { Accept: 'application/json' } });
-          if (response.ok) {
-            const json = await response.json();
-            const flattened = flattenSchoolsResponse(json);
-            if (isMounted) setSchools(flattened);
-            fetched = true;
-            break;
-          }
-        }
-        if (!fetched) throw new Error('HTTP 404');
+        const url = `${API_URL}?carrera=${carreraQuery}`;
+        const response = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const flattened = flattenSchoolsResponse(json);
+        if (isMounted) setSchools(flattened);
       } catch (error) {
         console.log('Failed to load schools from API. Using sample data.', error);
         if (isMounted) setSchools(flattenSchoolsResponse(sampleData as any));
@@ -208,12 +205,12 @@ const SchoolsMapScreen: React.FC = () => {
               style={styles.input}
               placeholder="Buscar por carrera (ej. Biología)"
               placeholderTextColor={violetTheme.colors.muted}
-              value={career}
-              onChangeText={setCareer}
+              value={searchText}
+              onChangeText={setSearchText}
               returnKeyType="search"
-              onSubmitEditing={() => setCareer((c) => c.trim())}
+              onSubmitEditing={() => setCareer(searchText.trim() || 'Biología')}
             />
-            <TouchableOpacity style={styles.searchButton} onPress={() => setCareer((c) => c.trim() || 'Biología')}>
+            <TouchableOpacity style={styles.searchButton} onPress={() => setCareer(searchText.trim() || 'Biología')}>
               <Text style={styles.searchButtonText}>Buscar</Text>
             </TouchableOpacity>
           </View>
@@ -277,6 +274,15 @@ const SchoolsMapScreen: React.FC = () => {
               <View style={[styles.legendDot, { backgroundColor: violetTheme.colors.violet700 }]} />
               <Text style={styles.legendText}>Privada</Text>
             </View>
+            <TouchableOpacity
+              style={styles.moreButton}
+              onPress={() => {
+                const c = (career || '').trim() || route?.params?.carrera || 'Biología';
+                navigation.navigate('Explore', { carrera: c });
+              }}
+            >
+              <Text style={styles.moreButtonText}>Explorar más escuelas</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -415,6 +421,17 @@ const styles = StyleSheet.create({
   },
   legendText: {
     color: violetTheme.colors.foreground,
+  },
+  moreButton: {
+    marginTop: 10,
+    backgroundColor: violetTheme.colors.primary,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  moreButtonText: {
+    color: violetTheme.colors.primaryForeground,
+    fontWeight: '700',
   },
 });
 

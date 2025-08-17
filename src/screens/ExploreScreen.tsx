@@ -11,11 +11,12 @@ import GeminiService from '../services/gemini';
 import Input from '../components/ui/Input';
 import GeminiStatusButton from '../components/learning/GeminiStatusButton';
 import SideDrawer from '../components/SideDrawer';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
 const ExploreScreen: React.FC = () => {
   const { volunteerPlan, riasecTop, location, learningPlan, setLearningPlan, setVolunteerPlan, setLocation } = useOnboarding();
+  const route = useRoute<any>();
   const [jobs, setJobs] = useState<any[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [vols, setVols] = useState<any[]>([]);
@@ -40,6 +41,20 @@ const ExploreScreen: React.FC = () => {
       ),
     });
   }, [navigation]);
+
+  const toPlainText = (html?: string): string => {
+    if (!html || typeof html !== 'string') return '';
+    const noTags = html.replace(/<[^>]+>/g, ' ');
+    return noTags
+      .replace(/&nbsp;?/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;|&apos;/g, "'")
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
 
   const loadVolunteer = async () => {
     setVolsLoading(true);
@@ -96,8 +111,28 @@ const ExploreScreen: React.FC = () => {
     }
     loadJobs();
     loadVolunteer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onlyLinkedIn]);
+  }, [
+    onlyLinkedIn,
+    (volunteerPlan?.categories || []).join('|'),
+    (volunteerPlan?.suggestedKeywords || []).join('|'),
+    location,
+  ]);
+
+  // Apply incoming career filter from navigation params
+  useEffect(() => {
+    const carrera: string | undefined = (route as any)?.params?.carrera;
+    if (!carrera) return;
+    const normalized = String(carrera).trim();
+    const currentCategories = volunteerPlan?.categories || [];
+    const updatedCategories = [normalized, ...currentCategories.filter((c: string) => c !== normalized)];
+    const currentKeywords = volunteerPlan?.suggestedKeywords || [];
+    const updatedKeywords = Array.from(new Set([normalized, ...currentKeywords]));
+    setVolunteerPlan({
+      categories: updatedCategories,
+      suggestedKeywords: updatedKeywords,
+      rationale: volunteerPlan?.rationale,
+    });
+  }, [(route as any)?.params?.carrera]);
 
   const loadEducation = async (keywords: string[], customLocation?: string) => {
     setEduLoading(true);
@@ -220,11 +255,11 @@ const ExploreScreen: React.FC = () => {
         </Card>
       )}
 
-      {/* 3. Jobs */}
+      {/* 3. Oportunidades */}
         <Card style={styles.card}>
           <CardHeader>
-            <CardTitle>Job offers</CardTitle>
-            <CardDescription>Curated roles aligned to your profile</CardDescription>
+            <CardTitle>Oportunidades</CardTitle>
+            <CardDescription>Roles alineados a tu perfil</CardDescription>
           </CardHeader>
           <CardContent>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
@@ -240,14 +275,14 @@ const ExploreScreen: React.FC = () => {
             {!jobsLoading && jobs.map((job: any, idx: number) => (
               <View key={idx} style={styles.item}>
                 <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>{job.title}</Text>
+                  <Text style={styles.itemTitle} numberOfLines={2}>{job.title}</Text>
                 </View>
-                {!!job.org && <Text style={styles.itemOrg}>{job.org}</Text>}
-                {!!job.location && <Text style={styles.itemMeta}>{job.location}</Text>}
-                {!!job.snippet && <Text style={styles.itemDesc}>{job.snippet}</Text>}
-                <Button variant="outline" onPress={() => Linking.openURL(job.link)}>
+                {!!job.org && <Text style={styles.itemOrg} numberOfLines={1}>{job.org}</Text>}
+                {!!job.location && <Text style={styles.itemMeta} numberOfLines={1}>{job.location}</Text>}
+                {!!job.snippet && <Text style={styles.itemDesc} numberOfLines={4}>{toPlainText(job.snippet)}</Text>}
+                <Button variant="ghost" size="sm" style={styles.ctaBtn} onPress={() => Linking.openURL(job.link)}>
                   <Ionicons name="open-outline" size={16} color={violetTheme.colors.primary} />
-                  <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Open</Text>
+                  <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Abrir</Text>
                 </Button>
               </View>
             ))}
@@ -265,15 +300,15 @@ const ExploreScreen: React.FC = () => {
             {!volsLoading && vols.map(op => (
               <View key={op.id} style={styles.item}>
                 <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>{op.title}</Text>
-                  <Text style={styles.itemType}>{op.type}</Text>
+                  <Text style={styles.itemTitle} numberOfLines={2}>{op.title}</Text>
+                  <Text style={styles.itemType}>{op.type || 'general'}</Text>
                 </View>
-                <Text style={styles.itemOrg}>{op.organization}</Text>
-                <Text style={styles.itemMeta}>{op.location} · {op.duration}</Text>
-                <Text style={styles.itemDesc}>{op.description}</Text>
-                <Button variant="outline" onPress={() => Linking.openURL(op.applicationLink)}>
+                {!!op.organization && <Text style={styles.itemOrg} numberOfLines={1}>{op.organization}</Text>}
+                <Text style={styles.itemMeta} numberOfLines={1}>{op.location}{op.duration ? ` · ${op.duration}` : ''}</Text>
+                {!!op.description && <Text style={styles.itemDesc} numberOfLines={4}>{toPlainText(op.description)}</Text>}
+                <Button variant="ghost" size="sm" style={styles.ctaBtn} onPress={() => Linking.openURL(op.applicationLink)}>
                   <Ionicons name="open-outline" size={16} color={violetTheme.colors.primary} />
-                  <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Apply</Text>
+                  <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Aplicar</Text>
                 </Button>
               </View>
             ))}
@@ -316,6 +351,7 @@ const styles = StyleSheet.create({
   itemOrg: { color: violetTheme.colors.muted, marginTop: 2 },
   itemMeta: { color: violetTheme.colors.muted, marginTop: 4, fontSize: 12 },
   itemDesc: { color: violetTheme.colors.foreground, marginVertical: 8 },
+  ctaBtn: { alignSelf: 'flex-start', paddingHorizontal: 0 },
 });
 
 export default ExploreScreen;

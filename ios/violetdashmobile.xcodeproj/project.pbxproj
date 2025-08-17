@@ -8,28 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		3C81FE4437896E0EE1EAFFFF /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB71930A49E426C304C3D9E /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		5582F0A4A595B2BD521F50D9 /* libPods-violetdashmobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 798E85F0B7062FB24939B454 /* libPods-violetdashmobile.a */; };
+		57677381F5733E07829E729D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B163AA949984564D26CBD4A1 /* PrivacyInfo.xcprivacy */; };
+		804BCE1CE3A07DC2F5A8D068 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D3A5E6CD1801A5336A95632 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C00264B0AFA253D28C21CA1B /* libPods-violetdashmobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E807E3BE1FBBB9AC2C88A200 /* libPods-violetdashmobile.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F978654F8975374D9A77AD78 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 45BAF0DE9DA3A57361E9EAB0 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* violetdashmobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = violetdashmobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = violetdashmobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = violetdashmobile/Info.plist; sourceTree = "<group>"; };
-		45BAF0DE9DA3A57361E9EAB0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = violetdashmobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		9C66E9581E201B7DADB65BD9 /* Pods-violetdashmobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-violetdashmobile.release.xcconfig"; path = "Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile.release.xcconfig"; sourceTree = "<group>"; };
+		1D3A5E6CD1801A5336A95632 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-violetdashmobile/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		2CF27F35252FEADFEE790B64 /* Pods-violetdashmobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-violetdashmobile.debug.xcconfig"; path = "Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile.debug.xcconfig"; sourceTree = "<group>"; };
+		65DC8428C7E07861A47171B3 /* Pods-violetdashmobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-violetdashmobile.release.xcconfig"; path = "Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile.release.xcconfig"; sourceTree = "<group>"; };
+		798E85F0B7062FB24939B454 /* libPods-violetdashmobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-violetdashmobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = violetdashmobile/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B163AA949984564D26CBD4A1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = violetdashmobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		DDB71930A49E426C304C3D9E /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-violetdashmobile/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		E807E3BE1FBBB9AC2C88A200 /* libPods-violetdashmobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-violetdashmobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = violetdashmobile/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* violetdashmobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "violetdashmobile-Bridging-Header.h"; path = "violetdashmobile/violetdashmobile-Bridging-Header.h"; sourceTree = "<group>"; };
-		FA9C6CC27EBC4AC8852B2376 /* Pods-violetdashmobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-violetdashmobile.debug.xcconfig"; path = "Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C00264B0AFA253D28C21CA1B /* libPods-violetdashmobile.a in Frameworks */,
+				5582F0A4A595B2BD521F50D9 /* libPods-violetdashmobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,43 +53,18 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				45BAF0DE9DA3A57361E9EAB0 /* PrivacyInfo.xcprivacy */,
+				B163AA949984564D26CBD4A1 /* PrivacyInfo.xcprivacy */,
 			);
 			name = violetdashmobile;
-			sourceTree = "<group>";
-		};
-		1847ED57EDD1E6D0418332C6 /* violetdashmobile */ = {
-			isa = PBXGroup;
-			children = (
-				DDB71930A49E426C304C3D9E /* ExpoModulesProvider.swift */,
-			);
-			name = violetdashmobile;
-			sourceTree = "<group>";
-		};
-		21BF34720647DC417E195BA3 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				1847ED57EDD1E6D0418332C6 /* violetdashmobile */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				E807E3BE1FBBB9AC2C88A200 /* libPods-violetdashmobile.a */,
+				798E85F0B7062FB24939B454 /* libPods-violetdashmobile.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		3026BCFCEC52DAE96AAEEF3E /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				FA9C6CC27EBC4AC8852B2376 /* Pods-violetdashmobile.debug.xcconfig */,
-				9C66E9581E201B7DADB65BD9 /* Pods-violetdashmobile.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -106,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				3026BCFCEC52DAE96AAEEF3E /* Pods */,
-				21BF34720647DC417E195BA3 /* ExpoModulesProviders */,
+				BE13A3B69B11DE6D5CD1D253 /* Pods */,
+				8CB3AC93B4F49EF017BB127F /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -122,6 +97,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8CB3AC93B4F49EF017BB127F /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				EFBE6E2D49E09FC9D606BD42 /* violetdashmobile */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -129,6 +112,23 @@
 			);
 			name = Supporting;
 			path = violetdashmobile/Supporting;
+			sourceTree = "<group>";
+		};
+		BE13A3B69B11DE6D5CD1D253 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				2CF27F35252FEADFEE790B64 /* Pods-violetdashmobile.debug.xcconfig */,
+				65DC8428C7E07861A47171B3 /* Pods-violetdashmobile.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		EFBE6E2D49E09FC9D606BD42 /* violetdashmobile */ = {
+			isa = PBXGroup;
+			children = (
+				1D3A5E6CD1801A5336A95632 /* ExpoModulesProvider.swift */,
+			);
+			name = violetdashmobile;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "violetdashmobile" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				803872EEC9D036730114A533 /* [Expo] Configure project */,
+				BB0F42BDAADCF547BF038079 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				625FB26CFE9FEE8C3AD49E19 /* [CP] Embed Pods Frameworks */,
+				83B8D63DB22A5D3D29C39C44 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				F978654F8975374D9A77AD78 /* PrivacyInfo.xcprivacy in Resources */,
+				57677381F5733E07829E729D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,24 +237,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		625FB26CFE9FEE8C3AD49E19 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -345,7 +327,25 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		803872EEC9D036730114A533 /* [Expo] Configure project */ = {
+		83B8D63DB22A5D3D29C39C44 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-violetdashmobile/Pods-violetdashmobile-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BB0F42BDAADCF547BF038079 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -372,7 +372,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				3C81FE4437896E0EE1EAFFFF /* ExpoModulesProvider.swift in Sources */,
+				804BCE1CE3A07DC2F5A8D068 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,7 +381,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FA9C6CC27EBC4AC8852B2376 /* Pods-violetdashmobile.debug.xcconfig */;
+			baseConfigurationReference = 2CF27F35252FEADFEE790B64 /* Pods-violetdashmobile.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -394,7 +394,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = violetdashmobile/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -418,7 +418,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9C66E9581E201B7DADB65BD9 /* Pods-violetdashmobile.release.xcconfig */;
+			baseConfigurationReference = 65DC8428C7E07861A47171B3 /* Pods-violetdashmobile.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -426,7 +426,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2CYK4KPJ3D;
 				INFOPLIST_FILE = violetdashmobile/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -494,7 +494,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -550,7 +550,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",

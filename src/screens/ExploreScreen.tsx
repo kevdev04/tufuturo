@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Image, Dimensions } from 'react-native';
 import { violetTheme } from '../theme/colors';
 import { useOnboarding } from '../context/OnboardingContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
@@ -11,11 +11,12 @@ import GeminiService from '../services/gemini';
 import Input from '../components/ui/Input';
 import GeminiStatusButton from '../components/learning/GeminiStatusButton';
 import SideDrawer from '../components/SideDrawer';
+import type { SideDrawerItem } from '../components/SideDrawer';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
 const ExploreScreen: React.FC = () => {
-  const { volunteerPlan, riasecTop, location, learningPlan, setLearningPlan, setVolunteerPlan, setLocation } = useOnboarding();
+  const { volunteerPlan, riasecTop, riasecScores, location, learningPlan, setLearningPlan, setVolunteerPlan, setLocation } = useOnboarding();
   const route = useRoute<any>();
   const [jobs, setJobs] = useState<any[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
@@ -54,6 +55,50 @@ const ExploreScreen: React.FC = () => {
       .replace(/&gt;/g, '>')
       .replace(/\s+/g, ' ')
       .trim();
+  };
+
+  const categoryImages: Record<string, string> = {
+    'Data & AI': 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop',
+    'Software Dev': 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop',
+    'Design & Product': 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1200&auto=format&fit=crop',
+    'Healthcare': 'https://images.unsplash.com/photo-1584467735871-2f1f7d1f7b66?q=80&w=1200&auto=format&fit=crop',
+    'Education': 'https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=1200&auto=format&fit=crop',
+    'Marketing & Sales': 'https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=1200&auto=format&fit=crop',
+    'Finance': 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&auto=format&fit=crop',
+    'Operations': 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1200&auto=format&fit=crop',
+    'Social': 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?q=80&w=1200&auto=format&fit=crop',
+    'Environmental': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop',
+    'Animal Care': 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=1200&auto=format&fit=crop',
+    'General': 'https://images.unsplash.com/photo-1504384764586-bb4cdc1707b0?q=80&w=1200&auto=format&fit=crop',
+  };
+  const getImageFor = (text?: string, fallback?: string): string => {
+    const key = fallback && categoryImages[fallback] ? fallback : 'General';
+    return categoryImages[key];
+  };
+
+  const inferJobCategory = (job: any): string => {
+    const hay = `${job.title || ''} ${job.org || ''} ${job.snippet || ''}`.toLowerCase();
+    if (/data|analyt|bi|ml|ai|science/.test(hay)) return 'Data & AI';
+    if (/developer|engineer|software|frontend|backend|full.?stack|program/.test(hay)) return 'Software Dev';
+    if (/design|ux|ui|product/.test(hay)) return 'Design & Product';
+    if (/health|salud|clinic|hospital|nurse|medic/.test(hay)) return 'Healthcare';
+    if (/teach|educa|school|mentor|profesor/.test(hay)) return 'Education';
+    if (/market|sales|venta|seo|ads|growth/.test(hay)) return 'Marketing & Sales';
+    if (/finance|account|contab|bank|finanzas/.test(hay)) return 'Finance';
+    if (/logistic|operac|supply|mantenimiento/.test(hay)) return 'Operations';
+    return 'General';
+  };
+
+  const inferVolCategory = (op: any): string => {
+    const t = (op.type || '').toLowerCase();
+    if (t) return t.charAt(0).toUpperCase() + t.slice(1);
+    const hay = `${op.title || ''} ${op.organization || ''} ${op.description || ''}`.toLowerCase();
+    if (/social|community|comunidad|volunteer/.test(hay)) return 'Social';
+    if (/education|escuela|teach|mentor/.test(hay)) return 'Education';
+    if (/environment|ambiental|sustaina|eco/.test(hay)) return 'Environmental';
+    if (/health|salud|clinic|hospital/.test(hay)) return 'Healthcare';
+    if (/animal|pet|rescue/.test(hay)) return 'Animal Care';
+    return 'General';
   };
 
   const loadVolunteer = async () => {
@@ -167,6 +212,20 @@ const ExploreScreen: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kwChips, locInput]);
 
+  const drawerItems: SideDrawerItem[] = [
+    { label: 'Explore', icon: 'compass-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Explore' as never); } },
+    { label: 'Home', icon: 'home-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Home' as never); } },
+    { label: 'Schools Map', icon: 'school-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
+    { label: 'Assessment', icon: 'podium-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Assessment' as never); } },
+    { label: 'Results', icon: 'analytics-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Results' as never); } },
+    { label: 'Account', icon: 'person-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Account' as never); } },
+  ];
+  if (user) {
+    drawerItems.push({ label: 'Sign Out', icon: 'log-out-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } });
+  } else {
+    drawerItems.push({ label: 'Sign In', icon: 'log-in-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } });
+  }
+
   return (
     <>
     <ScrollView style={styles.container}>
@@ -199,7 +258,7 @@ const ExploreScreen: React.FC = () => {
                       })();
                       const plan = await GeminiService.generateLearningPlan({
                         goal,
-                        riasecScores: riasec || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 },
+                        riasecScores: riasecScores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 },
                         topDimensions: riasecTop || [],
                         interests: volunteerPlan?.suggestedKeywords || [],
                         suggestedKeywords: volunteerPlan?.suggestedKeywords || [],
@@ -255,7 +314,7 @@ const ExploreScreen: React.FC = () => {
         </Card>
       )}
 
-      {/* 3. Oportunidades */}
+      {/* 3. Oportunidades (Jobs) - carousels by category */}
         <Card style={styles.card}>
           <CardHeader>
             <CardTitle>Oportunidades</CardTitle>
@@ -272,24 +331,40 @@ const ExploreScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             {jobsLoading && <Text style={styles.placeholder}>Cargando...</Text>}
-            {!jobsLoading && jobs.map((job: any, idx: number) => (
-              <View key={idx} style={styles.item}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle} numberOfLines={2}>{job.title}</Text>
+            {!jobsLoading && (
+              (Object.entries(jobs.reduce((acc: any, j: any) => {
+                const cat = inferJobCategory(j);
+                acc[cat] = acc[cat] || [];
+                acc[cat].push(j);
+                return acc;
+              }, {} as Record<string, any[]>)) as [string, any[]][]).map(([cat, list]) => (
+                <View key={cat} style={styles.carouselBlock}>
+                  <View style={styles.carouselHeader}>
+                    <Ionicons name="briefcase-outline" size={18} color={violetTheme.colors.primary} />
+                    <Text style={styles.carouselTitle}>{cat}</Text>
+                  </View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
+                    {list.map((job: any, idx: number) => (
+                      <View key={idx} style={styles.carouselCard}>
+                        <Image source={{ uri: getImageFor(job.title || job.org, cat) }} style={styles.carouselImage} />
+                        <Text style={styles.itemTitle} numberOfLines={2}>{job.title}</Text>
+                        {!!job.org && <Text style={styles.itemOrg} numberOfLines={1}>{job.org}</Text>}
+                        {!!job.location && <Text style={styles.itemMeta} numberOfLines={1}>{job.location}</Text>}
+                        {!!job.snippet && <Text style={styles.itemDesc} numberOfLines={3}>{toPlainText(job.snippet)}</Text>}
+                        <Button variant="ghost" size="sm" style={styles.ctaBtn} onPress={() => Linking.openURL(job.link)}>
+                          <Ionicons name="open-outline" size={16} color={violetTheme.colors.primary} />
+                          <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Abrir</Text>
+                        </Button>
+                      </View>
+                    ))}
+                  </ScrollView>
                 </View>
-                {!!job.org && <Text style={styles.itemOrg} numberOfLines={1}>{job.org}</Text>}
-                {!!job.location && <Text style={styles.itemMeta} numberOfLines={1}>{job.location}</Text>}
-                {!!job.snippet && <Text style={styles.itemDesc} numberOfLines={4}>{toPlainText(job.snippet)}</Text>}
-                <Button variant="ghost" size="sm" style={styles.ctaBtn} onPress={() => Linking.openURL(job.link)}>
-                  <Ionicons name="open-outline" size={16} color={violetTheme.colors.primary} />
-                  <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Abrir</Text>
-                </Button>
-              </View>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       
-      {/* 4. Volunteer */}
+      {/* 4. Volunteer - carousels by category */}
         <Card style={styles.card}>
           <CardHeader>
             <CardTitle>Volunteer opportunities</CardTitle>
@@ -297,21 +372,36 @@ const ExploreScreen: React.FC = () => {
           </CardHeader>
           <CardContent>
             {volsLoading && <Text style={styles.placeholder}>Cargando...</Text>}
-            {!volsLoading && vols.map(op => (
-              <View key={op.id} style={styles.item}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle} numberOfLines={2}>{op.title}</Text>
-                  <Text style={styles.itemType}>{op.type || 'general'}</Text>
+            {!volsLoading && (
+              (Object.entries(vols.reduce((acc: any, v: any) => {
+                const cat = inferVolCategory(v);
+                acc[cat] = acc[cat] || [];
+                acc[cat].push(v);
+                return acc;
+              }, {} as Record<string, any[]>)) as [string, any[]][]).map(([cat, list]) => (
+                <View key={cat} style={styles.carouselBlock}>
+                  <View style={styles.carouselHeader}>
+                    <Ionicons name="hand-left-outline" size={18} color={violetTheme.colors.primary} />
+                    <Text style={styles.carouselTitle}>{cat}</Text>
+                  </View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
+                    {list.map((op: any) => (
+                      <View key={op.id} style={styles.carouselCard}>
+                        <Image source={{ uri: getImageFor(op.title || op.type || op.organization, cat) }} style={styles.carouselImage} />
+                        <Text style={styles.itemTitle} numberOfLines={2}>{op.title}</Text>
+                        {!!op.organization && <Text style={styles.itemOrg} numberOfLines={1}>{op.organization}</Text>}
+                        <Text style={styles.itemMeta} numberOfLines={1}>{op.location}{op.duration ? ` · ${op.duration}` : ''}</Text>
+                        {!!op.description && <Text style={styles.itemDesc} numberOfLines={3}>{toPlainText(op.description)}</Text>}
+                        <Button variant="ghost" size="sm" style={styles.ctaBtn} onPress={() => Linking.openURL(op.applicationLink)}>
+                          <Ionicons name="open-outline" size={16} color={violetTheme.colors.primary} />
+                          <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Aplicar</Text>
+                        </Button>
+                      </View>
+                    ))}
+                  </ScrollView>
                 </View>
-                {!!op.organization && <Text style={styles.itemOrg} numberOfLines={1}>{op.organization}</Text>}
-                <Text style={styles.itemMeta} numberOfLines={1}>{op.location}{op.duration ? ` · ${op.duration}` : ''}</Text>
-                {!!op.description && <Text style={styles.itemDesc} numberOfLines={4}>{toPlainText(op.description)}</Text>}
-                <Button variant="ghost" size="sm" style={styles.ctaBtn} onPress={() => Linking.openURL(op.applicationLink)}>
-                  <Ionicons name="open-outline" size={16} color={violetTheme.colors.primary} />
-                  <Text style={{ marginLeft: 6, color: violetTheme.colors.primary }}>Aplicar</Text>
-                </Button>
-              </View>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       
@@ -321,15 +411,7 @@ const ExploreScreen: React.FC = () => {
       onClose={() => setMenuOpen(false)}
       user={user}
       title="Menu"
-      items={[
-        { label: 'Explore', icon: 'compass-outline', onPress: () => { setMenuOpen(false); navigation.navigate('Explore' as never); } },
-        { label: 'Home', icon: 'home-outline', onPress: () => { setMenuOpen(false); navigation.navigate('Home' as never); } },
-        { label: 'Schools Map', icon: 'school-outline', onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
-        { label: 'Assessment', icon: 'podium-outline', onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Assessment' as never); } },
-        { label: 'Results', icon: 'analytics-outline', onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Results' as never); } },
-        { label: 'Account', icon: 'person-outline', onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Account' as never); } },
-        ...(user ? [{ label: 'Sign Out', icon: 'log-out-outline', color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } }] : [{ label: 'Sign In', icon: 'log-in-outline', color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } }]),
-      ]}
+      items={drawerItems}
     />
     </>
   );
@@ -352,6 +434,12 @@ const styles = StyleSheet.create({
   itemMeta: { color: violetTheme.colors.muted, marginTop: 4, fontSize: 12 },
   itemDesc: { color: violetTheme.colors.foreground, marginVertical: 8 },
   ctaBtn: { alignSelf: 'flex-start', paddingHorizontal: 0 },
+  carouselBlock: { marginBottom: 12 },
+  carouselHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
+  carouselTitle: { color: violetTheme.colors.foreground, fontWeight: '700' },
+  carousel: { paddingBottom: 6 },
+  carouselCard: { width: Math.min(280, Dimensions.get('window').width * 0.72), borderWidth: 1, borderColor: violetTheme.colors.border, borderRadius: violetTheme.borderRadius.md, padding: violetTheme.spacing.sm, marginRight: violetTheme.spacing.sm, backgroundColor: violetTheme.colors.card },
+  carouselImage: { width: '100%', height: 120, borderRadius: 8, marginBottom: 8 },
 });
 
 export default ExploreScreen;

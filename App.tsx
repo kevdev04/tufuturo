@@ -18,6 +18,7 @@ import AssessmentGate from './src/screens/AssessmentGate';
 import ResultsScreen from './src/screens/DashboardScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import ExploreScreen from './src/screens/ExploreScreen';
+import ExploreNavigator from './src/navigation/ExploreNavigator';
 import SchoolsMapScreen from './src/screens/SchoolsMapScreen';
 
 
@@ -78,7 +79,7 @@ const TabNavigator: React.FC = () => {
     >
       <Tab.Screen
         name="Explore"
-        component={ExploreScreen}
+        component={ExploreNavigator}
         options={{ title: 'Explore' }}
       />
       <Tab.Screen

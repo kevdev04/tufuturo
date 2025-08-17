@@ -239,4 +239,4 @@ export async function generateCareerAdvice(req: CareerAdviceRequest): Promise<Ca
   }
 }
 
-export default { generateVolunteerPlan, generateCareerAdvice };
+export default { generateVolunteerPlan, generateCareerAdvice, generateLearningPlan };

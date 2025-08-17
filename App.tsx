@@ -75,34 +75,19 @@ const TabNavigator: React.FC = () => {
       })}
     >
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: t('nav.home') }}
-      />
-      <Tab.Screen
-        name="Assessment"
-        component={AssessmentGate}
-        options={{ title: t('nav.form') }}
-      />
-      <Tab.Screen
         name="Explore"
         component={ExploreScreen}
         options={{ title: 'Explore' }}
       />
       <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ title: t('nav.home') }}
+      />
+      <Tab.Screen
         name="SchoolsMap"
         component={SchoolsMapScreen}
         options={{ title: 'Schools' }}
-      />
-      <Tab.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ title: t('nav.login') }}
-      />
-      <Tab.Screen
-        name="Account"
-        component={AccountScreen}
-        options={{ title: 'Account' }}
       />
     </Tab.Navigator>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,9 @@ import {
   ActivityIndicator,
   Linking,
   Image,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { violetTheme } from '../theme/colors';
@@ -18,6 +21,8 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useOnboarding } from '../context/OnboardingContext';
 import RadarChart from '../components/learning/RadarChart';
 import mcp, { extractResultsArray, normalizeVolunteerOpportunity } from '../services/mcp';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 
 const HomeScreen: React.FC = () => {
   const { t } = useLanguage();
@@ -63,6 +68,31 @@ const HomeScreen: React.FC = () => {
   // 🔹 Volunteer API state (from MCP)
   const [volunteerOpportunities, setVolunteerOpportunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation<any>();
+  const { user, signOut } = useAuth();
+
+  // Hamburger side menu state
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuWidth = Math.min(300, Math.floor(Dimensions.get('window').width * 0.8));
+  const translateX = useRef(new Animated.Value(menuWidth)).current;
+
+  const openMenu = () => {
+    setMenuOpen(true);
+    Animated.timing(translateX, { toValue: 0, duration: 220, useNativeDriver: true }).start();
+  };
+  const closeMenu = () => {
+    Animated.timing(translateX, { toValue: menuWidth, duration: 200, useNativeDriver: true }).start(() => setMenuOpen(false));
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={openMenu} accessibilityLabel="Open menu" style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+          <Ionicons name="menu" size={22} color={violetTheme.colors.primary} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   // Define the volunteer opportunity interface
   interface VolunteerOpportunity {
@@ -387,6 +417,58 @@ const HomeScreen: React.FC = () => {
           </CardContent>
         </Card>
       </ScrollView>
+
+      {/* Side Drawer Overlay */}
+      {menuOpen && (
+        <TouchableOpacity activeOpacity={1} onPress={closeMenu} style={styles.menuBackdrop}>
+          <View />
+        </TouchableOpacity>
+      )}
+      <Animated.View style={[styles.sideMenu, { width: menuWidth, transform: [{ translateX }] }]}>
+        <View style={styles.sideMenuHeader}>
+          <Text style={styles.sideMenuTitle}>Menu</Text>
+          <TouchableOpacity onPress={closeMenu} accessibilityLabel="Close menu">
+            <Ionicons name="close" size={20} color={violetTheme.colors.muted} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.sideMenuUserRow}>
+          <Ionicons name="person-circle" size={28} color={violetTheme.colors.primary} />
+          <View style={{ marginLeft: 8 }}>
+            <Text style={styles.sideMenuUserName}>{user?.name || 'Guest'}</Text>
+            <Text style={styles.sideMenuUserEmail}>{user?.email || 'Not signed in'}</Text>
+          </View>
+        </View>
+        <View style={styles.sideMenuDivider} />
+        {/* Dynamic links */}
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Explore'); }}>
+          <Ionicons name="compass-outline" size={18} color={violetTheme.colors.foreground} />
+          <Text style={styles.sideMenuItemText}>Explore</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('SchoolsMap'); }}>
+          <Ionicons name="school-outline" size={18} color={violetTheme.colors.foreground} />
+          <Text style={styles.sideMenuItemText}>Schools Map</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Assessment'); }}>
+          <Ionicons name="podium-outline" size={18} color={violetTheme.colors.foreground} />
+          <Text style={styles.sideMenuItemText}>{riasecScores ? 'Retake Assessment' : 'Start Assessment'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Account'); }}>
+          <Ionicons name="person-outline" size={18} color={violetTheme.colors.foreground} />
+          <Text style={styles.sideMenuItemText}>Account</Text>
+        </TouchableOpacity>
+        <View style={styles.sideMenuDivider} />
+        {user ? (
+          <TouchableOpacity style={styles.sideMenuItem} onPress={async () => { closeMenu(); await signOut(); }}>
+            <Ionicons name="log-out-outline" size={18} color={violetTheme.colors.danger} />
+            <Text style={[styles.sideMenuItemText, { color: violetTheme.colors.danger }]}>Sign Out</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.sideMenuItem} onPress={() => { closeMenu(); navigation.navigate('Login'); }}>
+            <Ionicons name="log-in-outline" size={18} color={violetTheme.colors.primary} />
+            <Text style={[styles.sideMenuItemText, { color: violetTheme.colors.primary }]}>Sign In</Text>
+          </TouchableOpacity>
+        )}
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -399,6 +481,67 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     padding: violetTheme.spacing.md,
+  },
+  menuBackdrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    zIndex: 15,
+  },
+  sideMenu: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: violetTheme.colors.background,
+    borderRightWidth: 1,
+    borderRightColor: violetTheme.colors.border,
+    paddingTop: 16,
+    paddingHorizontal: 14,
+    zIndex: 30,
+  },
+  sideMenuHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  sideMenuTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: violetTheme.colors.foreground,
+  },
+  sideMenuUserRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sideMenuUserName: {
+    fontWeight: '600',
+    color: violetTheme.colors.foreground,
+  },
+  sideMenuUserEmail: {
+    color: violetTheme.colors.muted,
+    fontSize: 12,
+  },
+  sideMenuDivider: {
+    height: 1,
+    backgroundColor: violetTheme.colors.border,
+    marginVertical: 10,
+  },
+  sideMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    gap: 10,
+  },
+  sideMenuItemText: {
+    fontSize: 14,
+    color: violetTheme.colors.foreground,
+    fontWeight: '600',
   },
   statsContainer: {
     marginBottom: violetTheme.spacing.lg,

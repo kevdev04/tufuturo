@@ -85,43 +85,7 @@ const HomeScreen: React.FC = () => {
     drawerItems.push({ label: 'Sign In', icon: 'log-in-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } });
   }
 
-  const stats = [
-    { label: t('home.stats.assessments'), value: '12', icon: 'document-text', color: violetTheme.colors.primary },
-    { label: t('home.stats.recommendations'), value: '8', icon: 'star', color: violetTheme.colors.success },
-    { label: t('home.stats.saved'), value: '15', icon: 'bookmark', color: violetTheme.colors.warning },
-  ];
-
-  const progressAreas = [
-    { 
-      title: 'Career Assessment', 
-      progress: 75, 
-      icon: 'document-text', 
-      color: violetTheme.colors.primary,
-      description: '3 of 4 sections completed'
-    },
-    { 
-      title: 'Skills Development', 
-      progress: 60, 
-      icon: 'construct', 
-      color: violetTheme.colors.success,
-      description: '6 of 10 skills mastered'
-    },
-    { 
-      title: 'Goal Achievement', 
-      progress: 45, 
-      icon: 'trending-up', 
-      color: violetTheme.colors.warning,
-      description: '2 of 5 goals reached'
-    },
-    { 
-      title: 'Network Building', 
-      progress: 30, 
-      icon: 'people', 
-      color: violetTheme.colors.info,
-      description: '15 of 50 connections made'
-    },
-  ];
-
+  // Declare state first to avoid temporal dead zone for computed sections
   // 🔹 Volunteer API state (from MCP)
   const [volunteerOpportunities, setVolunteerOpportunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +105,37 @@ const HomeScreen: React.FC = () => {
   const [dashboardStats, setDashboardStats] = useState<Array<{ career: string; average: number }>>([]);
   const [loadingBackend, setLoadingBackend] = useState<boolean>(true);
   const [costStats, setCostStats] = useState<{ avg: number; min: number; max: number; count: number } | null>(null);
+  const [schoolsCount, setSchoolsCount] = useState<number | null>(null);
   const [costLoading, setCostLoading] = useState<boolean>(false);
+
+  const dynamicStats = (() => {
+    return [
+      { label: 'Universidades', value: typeof schoolsCount === 'number' ? String(schoolsCount) : '—', icon: 'school', color: violetTheme.colors.success },
+      { label: 'Subáreas', value: String(subareas.length || 0), icon: 'layers', color: violetTheme.colors.primary },
+      { label: 'Oportunidades', value: String(jobs.length || 0), icon: 'briefcase', color: violetTheme.colors.info },
+      { label: 'Voluntariados', value: String(volunteerOpportunities.length || 0), icon: 'heart', color: violetTheme.colors.violet700 },
+    ];
+  })();
+
+  const progressAreas = (() => {
+    const areas: { title: string; progress: number; icon: any; color: string; description: string }[] = [];
+    const total = Number((subareaDetail as any)?.total_lecciones || 0);
+    const done = Number((subareaDetail as any)?.progreso || 0);
+    if (total > 0) {
+      const pct = Math.max(0, Math.min(100, Math.round((done / total) * 100)));
+      areas.push({ title: 'Lecciones completadas', progress: pct, icon: 'book', color: violetTheme.colors.primary, description: `${done} de ${total}` });
+    }
+    const videos = Array.isArray((subareaDetail as any)?.videos_escuela) ? (subareaDetail as any).videos_escuela.length : 0;
+    areas.push({ title: 'Recursos de video', progress: Math.min(100, videos * 10), icon: 'videocam', color: violetTheme.colors.success, description: `${videos} videos` });
+    areas.push({ title: 'Subáreas de la carrera', progress: Math.min(100, (subareas.length || 0) * 8), icon: 'layers', color: violetTheme.colors.warning, description: `${subareas.length} subáreas` });
+    // Se omite la tarjeta de Promedio por carrera según solicitud
+    if (areas.length === 0) {
+      // Fallback demo
+      areas.push({ title: 'Lecciones completadas', progress: 0, icon: 'book', color: violetTheme.colors.primary, description: '—' });
+    }
+    return areas.slice(0, 4);
+  })();
+
 
   // Define the volunteer opportunity interface
   interface VolunteerOpportunity {
@@ -352,6 +346,7 @@ const HomeScreen: React.FC = () => {
         const resp = await getJsonRoot('/escuelas', { carrera: selectedCareer });
         if (cancelled) return;
         const arr = Array.isArray(resp?.results) ? resp.results : Array.isArray(resp) ? resp : [];
+        setSchoolsCount(arr.length);
         const costs = arr.map((s: any) => Number(s?.costo)).filter((n: number) => Number.isFinite(n) && n > 0);
         if (costs.length === 0) { setCostStats(null); return; }
         const sum = costs.reduce((a: number, b: number) => a + b, 0);
@@ -361,6 +356,7 @@ const HomeScreen: React.FC = () => {
         setCostStats({ avg, min, max, count: costs.length });
       } catch {
         setCostStats(null);
+        setSchoolsCount(null);
       } finally {
         if (!cancelled) setCostLoading(false);
       }
@@ -639,7 +635,7 @@ const HomeScreen: React.FC = () => {
               <LanguageSwitcher />
             </View>
             <View style={styles.statsGrid}>
-              {stats.map((stat, index) => (
+              {dynamicStats.map((stat, index) => (
                 <View key={index} style={styles.statCard}>
                   <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
                     <Ionicons name={stat.icon as any} size={24} color={stat.color} />
@@ -672,6 +668,26 @@ const HomeScreen: React.FC = () => {
                 </View>
               ))}
             </View>
+            {/* Lecciones de la subárea (si existen) */}
+            {Array.isArray((subareaDetail as any)?.lecciones) && (subareaDetail as any).lecciones.length > 0 && (
+              <View style={{ marginTop: 12 }}>
+                <Text style={{ fontWeight: '700', color: violetTheme.colors.foreground, marginBottom: 8 }}>Lecciones</Text>
+                {(subareaDetail as any).lecciones.slice(0, 4).map((l: any, idx: number) => (
+                  <View key={idx} style={{
+                    borderWidth: 1,
+                    borderColor: violetTheme.colors.border,
+                    borderRadius: 10,
+                    padding: 10,
+                    marginBottom: 8,
+                    backgroundColor: violetTheme.colors.card,
+                  }}>
+                    <Text style={{ fontWeight: '600', color: violetTheme.colors.foreground }}>{l?.titulo || `Lección ${idx + 1}`}</Text>
+                    <Text style={{ color: violetTheme.colors.muted, marginTop: 2 }}>{Array.isArray(l?.videos) ? `${l.videos.length} videos` : '0 videos'}</Text>
+                    {!!l?.descripcion && <Text style={{ color: violetTheme.colors.muted, marginTop: 4 }} numberOfLines={2}>{l.descripcion}</Text>}
+                  </View>
+                ))}
+              </View>
+            )}
           </CardContent>
         </Card>
 
@@ -770,7 +786,7 @@ const HomeScreen: React.FC = () => {
           </Card>
         )}
 
-        {/* Costo por escuela (estimado) */}
+        {/* Costo por escuela (estimado) y conteo de universidades */}
         {selectedCareer && (
           <Card style={styles.sectionCard}>
             <CardHeader>
@@ -789,12 +805,15 @@ const HomeScreen: React.FC = () => {
               ) : (
                 <Text style={{ color: violetTheme.colors.muted }}>Sin datos de costos</Text>
               )}
+              {typeof schoolsCount === 'number' && (
+                <Text style={{ color: violetTheme.colors.muted, marginTop: 8 }}>Universidades con esta carrera: {schoolsCount}</Text>
+              )}
             </CardContent>
           </Card>
         )}
 
-        {/* Formulario por subárea */}
-        {formQuestions.length > 0 && (
+        {/* Formulario por subárea: sólo cuando hay área y carrera seleccionadas y una subárea activa */}
+        {selectedArea && selectedCareer && selectedSubarea && formQuestions.length > 0 && (
           <Card style={styles.sectionCard}>
             <CardHeader>
               <CardTitle>Formulario</CardTitle>
@@ -836,51 +855,51 @@ const HomeScreen: React.FC = () => {
               <View style={{ maxHeight: 360 }}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   {volunteerOpportunities.map((opportunity) => (
-                    <View key={opportunity.id} style={styles.opportunityItem}>
-                      <View style={styles.opportunityHeader}>
-                        <View style={styles.opportunityImageContainer}>
-                          <Image 
-                            source={{ uri: opportunity.image }} 
-                            style={styles.opportunityImage}
-                            resizeMode="cover"
-                          />
-                        </View>
-                        <View style={styles.opportunityInfo}>
-                          <Text style={styles.opportunityTitle}>{opportunity.title}</Text>
-                          <Text style={styles.organizationName}>{opportunity.organization}</Text>
-                          <View style={styles.opportunityMeta}>
-                            <View style={styles.metaItem}>
-                              <Ionicons name="location" size={14} color={violetTheme.colors.muted} />
-                              <Text style={styles.metaText}>{opportunity.location}</Text>
-                            </View>
-                            <View style={styles.metaItem}>
-                              <Ionicons name="time" size={14} color={violetTheme.colors.muted} />
-                              <Text style={styles.metaText}>{opportunity.duration}</Text>
-                            </View>
-                          </View>
-                        </View>
-                        <View style={styles.opportunityType}>
-                          <Text style={styles.typeText}>{opportunity.type}</Text>
-                        </View>
-                      </View>
-                      <Text style={styles.opportunityDescription}>{opportunity.description}</Text>
-                      <View style={styles.skillsContainer}>
-                        {opportunity.requiredSkills.map((skill: string, index: number) => (
-                          <View key={index} style={styles.skillTag}>
-                            <Text style={styles.skillText}>{skill}</Text>
-                          </View>
-                        ))}
-                      </View>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        style={styles.applyButton}
-                        onPress={() => Linking.openURL(opportunity.applicationLink)}
-                      >
-                        <Ionicons name="open-outline" size={16} color={violetTheme.colors.primaryForeground} />
-                        <Text style={styles.applyButtonText}>{t('home.volunteer.apply')}</Text>
-                      </Button>
+                <View key={opportunity.id} style={styles.opportunityItem}>
+                  <View style={styles.opportunityHeader}>
+                    <View style={styles.opportunityImageContainer}>
+                      <Image 
+                        source={{ uri: opportunity.image }} 
+                        style={styles.opportunityImage}
+                        resizeMode="cover"
+                      />
                     </View>
+                    <View style={styles.opportunityInfo}>
+                      <Text style={styles.opportunityTitle}>{opportunity.title}</Text>
+                      <Text style={styles.organizationName}>{opportunity.organization}</Text>
+                      <View style={styles.opportunityMeta}>
+                        <View style={styles.metaItem}>
+                          <Ionicons name="location" size={14} color={violetTheme.colors.muted} />
+                          <Text style={styles.metaText}>{opportunity.location}</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Ionicons name="time" size={14} color={violetTheme.colors.muted} />
+                          <Text style={styles.metaText}>{opportunity.duration}</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View style={styles.opportunityType}>
+                      <Text style={styles.typeText}>{opportunity.type}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.opportunityDescription}>{opportunity.description}</Text>
+                  <View style={styles.skillsContainer}>
+                    {opportunity.requiredSkills.map((skill: string, index: number) => (
+                      <View key={index} style={styles.skillTag}>
+                        <Text style={styles.skillText}>{skill}</Text>
+                      </View>
+                    ))}
+                  </View>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    style={styles.applyButton}
+                    onPress={() => Linking.openURL(opportunity.applicationLink)}
+                  >
+                    <Ionicons name="open-outline" size={16} color={violetTheme.colors.primaryForeground} />
+                    <Text style={styles.applyButtonText}>{t('home.volunteer.apply')}</Text>
+                  </Button>
+                </View>
                   ))}
                 </ScrollView>
               </View>

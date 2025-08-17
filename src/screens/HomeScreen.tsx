@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Linking,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { violetTheme } from '../theme/colors';
@@ -23,6 +24,9 @@ import CareerCard from '../components/discovery/CareerCard';
 import SubareaChip from '../components/discovery/SubareaChip';
 import FormPreview from '../components/discovery/FormPreview';
 import DashboardStatCard from '../components/discovery/DashboardStatCard';
+import SideDrawer from '../components/SideDrawer';
+import type { SideDrawerItem } from '../components/SideDrawer';
+import { useAuth } from '../context/AuthContext';
 
 const HOST_BASE = 'https://tu-futuro-backend-production.up.railway.app';
 const API_BASE = `${HOST_BASE}/api`;
@@ -54,6 +58,32 @@ const HomeScreen: React.FC = () => {
   const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const { riasecScores, riasecTop, userStrengths, userWeaknesses, volunteerPlan, location } = useOnboarding() as any;
+  const { user, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setMenuOpen(true)} accessibilityLabel="Open menu" style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+          <Ionicons name="menu" size={22} color={violetTheme.colors.primary} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  const drawerItems: SideDrawerItem[] = [
+    { label: 'Explore', icon: 'compass-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Explore' as never); } },
+    { label: 'Home', icon: 'home-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('Home' as never); } },
+    { label: 'Schools Map', icon: 'school-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.navigate('SchoolsMap' as never); } },
+    { label: 'Assessment', icon: 'podium-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Assessment' as never); } },
+    { label: 'Results', icon: 'analytics-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Results' as never); } },
+    { label: 'Account', icon: 'person-outline' as keyof typeof Ionicons.glyphMap, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Account' as never); } },
+  ];
+  if (user) {
+    drawerItems.push({ label: 'Sign Out', icon: 'log-out-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.danger, onPress: async () => { setMenuOpen(false); await signOut(); } });
+  } else {
+    drawerItems.push({ label: 'Sign In', icon: 'log-in-outline' as keyof typeof Ionicons.glyphMap, color: violetTheme.colors.primary, onPress: () => { setMenuOpen(false); navigation.getParent()?.navigate('Login' as never); } });
+  }
 
   const stats = [
     { label: t('home.stats.assessments'), value: '12', icon: 'document-text', color: violetTheme.colors.primary },
@@ -861,7 +891,13 @@ const HomeScreen: React.FC = () => {
           </CardContent>
         </Card>
       </ScrollView>
-
+      <SideDrawer
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        user={user}
+        title="Menu"
+        items={drawerItems}
+      />
     </SafeAreaView>
   );
 };

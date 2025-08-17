@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import { violetTheme } from '../theme/colors';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 type School = {
   name: string;
@@ -138,6 +138,7 @@ const defaultRegion: Region = {
 
 const SchoolsMapScreen: React.FC = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [career, setCareer] = useState<string>(route?.params?.carrera ?? 'Biología');
@@ -270,6 +271,15 @@ const SchoolsMapScreen: React.FC = () => {
               <View style={[styles.legendDot, { backgroundColor: violetTheme.colors.violet700 }]} />
               <Text style={styles.legendText}>Privada</Text>
             </View>
+            <TouchableOpacity
+              style={styles.moreButton}
+              onPress={() => {
+                const c = (career || '').trim() || route?.params?.carrera || 'Biología';
+                navigation.navigate('Explore', { carrera: c });
+              }}
+            >
+              <Text style={styles.moreButtonText}>Explorar más escuelas</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -408,6 +418,17 @@ const styles = StyleSheet.create({
   },
   legendText: {
     color: violetTheme.colors.foreground,
+  },
+  moreButton: {
+    marginTop: 10,
+    backgroundColor: violetTheme.colors.primary,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  moreButtonText: {
+    color: violetTheme.colors.primaryForeground,
+    fontWeight: '700',
   },
 });
 

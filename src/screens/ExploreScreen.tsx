@@ -10,9 +10,11 @@ import ModuleCard from '../components/learning/ModuleCard';
 import GeminiService from '../services/gemini';
 import Input from '../components/ui/Input';
 import GeminiStatusButton from '../components/learning/GeminiStatusButton';
+import { useRoute } from '@react-navigation/native';
 
 const ExploreScreen: React.FC = () => {
   const { volunteerPlan, riasecTop, location, learningPlan, setLearningPlan, setVolunteerPlan, setLocation } = useOnboarding();
+  const route = useRoute<any>();
   const [jobs, setJobs] = useState<any[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [vols, setVols] = useState<any[]>([]);
@@ -94,8 +96,28 @@ const ExploreScreen: React.FC = () => {
     }
     loadJobs();
     loadVolunteer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onlyLinkedIn]);
+  }, [
+    onlyLinkedIn,
+    (volunteerPlan?.categories || []).join('|'),
+    (volunteerPlan?.suggestedKeywords || []).join('|'),
+    location,
+  ]);
+
+  // Apply incoming career filter from navigation params
+  useEffect(() => {
+    const carrera: string | undefined = (route as any)?.params?.carrera;
+    if (!carrera) return;
+    const normalized = String(carrera).trim();
+    const currentCategories = volunteerPlan?.categories || [];
+    const updatedCategories = [normalized, ...currentCategories.filter((c: string) => c !== normalized)];
+    const currentKeywords = volunteerPlan?.suggestedKeywords || [];
+    const updatedKeywords = Array.from(new Set([normalized, ...currentKeywords]));
+    setVolunteerPlan({
+      categories: updatedCategories,
+      suggestedKeywords: updatedKeywords,
+      rationale: volunteerPlan?.rationale,
+    });
+  }, [(route as any)?.params?.carrera]);
 
   const loadEducation = async (keywords: string[], customLocation?: string) => {
     setEduLoading(true);

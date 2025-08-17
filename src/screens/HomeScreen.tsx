@@ -674,6 +674,15 @@ const HomeScreen: React.FC = () => {
                 ))}
               </ScrollView>
             )}
+            <Button
+              variant="default"
+              size="sm"
+              style={{ marginTop: 8 }}
+              onPress={() => navigation.navigate('Schools', { carrera: selectedCareer || careers[0] })}
+              disabled={(selectedCareer || careers[0]) ? false : true}
+            >
+              Ver en mapa
+            </Button>
           </CardContent>
         </Card>
 
@@ -852,6 +861,7 @@ const HomeScreen: React.FC = () => {
           </CardContent>
         </Card>
       </ScrollView>
+
     </SafeAreaView>
   );
 };

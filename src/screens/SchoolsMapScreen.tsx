@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import { violetTheme } from '../theme/colors';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -14,6 +14,29 @@ type School = {
 
 const HOST_BASE = 'https://tu-futuro-backend-production.up.railway.app';
 const API_URL = `${HOST_BASE}/escuelas`;
+
+const CAREER_OPTIONS = [
+  'Medicina',
+  'Derecho',
+  'Administración de Empresas',
+  'Psicología',
+  'Contaduría Pública',
+  'Ingeniería Industrial',
+  'Ingeniería en Sistemas Computacionales',
+  'Arquitectura',
+  'Enfermería',
+  'Comunicación',
+  'Mercadotecnia',
+  'Relaciones Internacionales',
+  'Economía',
+  'Ingeniería Civil',
+  'Ingeniería Mecánica',
+  'Pedagogía',
+  'Ingeniería Agronómica',
+  'Medicina Veterinaria y Zootecnia',
+  'Biología',
+  'Química Farmacéutico Biológica',
+];
 
 const sampleData: Record<string, School[]> = {
   // Minimal sample to ensure the screen renders if API is unavailable
@@ -142,15 +165,23 @@ const SchoolsMapScreen: React.FC = () => {
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // query state used for fetching
-  const [career, setCareer] = useState<string>(route?.params?.carrera ?? 'Biología');
-  // input state used while typing (does not trigger fetch)
-  const [searchText, setSearchText] = useState<string>(route?.params?.carrera ?? 'Biología');
+  const initialCareer = (route?.params?.carrera as string) ?? 'Biología';
+  const [career, setCareer] = useState<string>(initialCareer);
+  const [pickerVisible, setPickerVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Si cambian los params de navegación, sincroniza el estado local para disparar el fetch
+    const paramCarrera = (route?.params?.carrera as string) || '';
+    if (paramCarrera && paramCarrera !== career) {
+      setCareer(paramCarrera);
+    }
+  }, [route?.params?.carrera]);
 
   useEffect(() => {
     let isMounted = true;
     const fetchSchools = async () => {
       try {
-        const carreraParam: string | undefined = career || route?.params?.carrera;
+        const carreraParam: string | undefined = career || (route?.params?.carrera as string);
         const carreraQuery = encodeURIComponent(carreraParam || 'Biología');
         const url = `${API_URL}?carrera=${carreraQuery}`;
         const response = await fetch(url, { headers: { Accept: 'application/json' } });
@@ -201,19 +232,47 @@ const SchoolsMapScreen: React.FC = () => {
       ) : (
         <View style={styles.mapWrapper}>
           <View style={styles.searchBar}>
-            <TextInput
-              style={styles.input}
-              placeholder="Buscar por carrera (ej. Biología)"
-              placeholderTextColor={violetTheme.colors.muted}
-              value={searchText}
-              onChangeText={setSearchText}
-              returnKeyType="search"
-              onSubmitEditing={() => setCareer(searchText.trim() || 'Biología')}
-            />
-            <TouchableOpacity style={styles.searchButton} onPress={() => setCareer(searchText.trim() || 'Biología')}>
-              <Text style={styles.searchButtonText}>Buscar</Text>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => setPickerVisible(true)}
+              style={styles.selectBox}
+            >
+              <Text style={styles.selectText}>{career}</Text>
             </TouchableOpacity>
           </View>
+
+          <Modal
+            visible={pickerVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setPickerVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Selecciona una carrera</Text>
+                <ScrollView style={{ maxHeight: 360 }}>
+                  {CAREER_OPTIONS.map((opt) => (
+                    <TouchableOpacity
+                      key={opt}
+                      style={[styles.optionItem, opt === career && styles.optionItemSelected]}
+                      onPress={() => {
+                        setPickerVisible(false);
+                        setCareer(opt); // dispara el fetch a través del useEffect
+                      }}
+                    >
+                      <Text style={[styles.optionText, opt === career && styles.optionTextSelected]}>
+                        {opt}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <TouchableOpacity style={styles.modalClose} onPress={() => setPickerVisible(false)}>
+                  <Text style={styles.modalCloseText}>Cerrar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
           <MapView style={styles.map} initialRegion={initialRegion}>
             {schools.map((school, index) => (
               <Marker
@@ -316,20 +375,17 @@ const styles = StyleSheet.create({
     shadowRadius: violetTheme.shadows.md.shadowRadius,
     elevation: violetTheme.shadows.md.elevation,
   },
-  input: {
+  selectBox: {
     flex: 1,
-    color: violetTheme.colors.foreground,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  searchButton: {
-    paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: violetTheme.colors.violet700,
+    paddingHorizontal: 12,
     borderRadius: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: violetTheme.colors.muted,
+    backgroundColor: violetTheme.colors.card || violetTheme.colors.background,
   },
-  searchButtonText: {
-    color: '#fff',
+  selectText: {
+    color: violetTheme.colors.foreground,
     fontWeight: '600',
   },
   map: {
@@ -433,8 +489,50 @@ const styles = StyleSheet.create({
     color: violetTheme.colors.primaryForeground,
     fontWeight: '700',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: '#0008',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalContent: {
+    backgroundColor: violetTheme.colors.background,
+    borderRadius: 12,
+    padding: 12,
+  },
+  modalTitle: {
+    fontWeight: '700',
+    color: violetTheme.colors.foreground,
+    marginBottom: 8,
+  },
+  optionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginVertical: 4,
+  },
+  optionItemSelected: {
+    backgroundColor: `${violetTheme.colors.primary}15`,
+  },
+  optionText: {
+    color: violetTheme.colors.foreground,
+  },
+  optionTextSelected: {
+    color: violetTheme.colors.violet700,
+    fontWeight: '700',
+  },
+  modalClose: {
+    marginTop: 10,
+    alignSelf: 'flex-end',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: violetTheme.colors.violet700,
+    borderRadius: 8,
+  },
+  modalCloseText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
 });
 
 export default SchoolsMapScreen;
-
-

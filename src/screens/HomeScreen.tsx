@@ -724,8 +724,11 @@ const HomeScreen: React.FC = () => {
               variant="default"
               size="sm"
               style={{ marginTop: 8 }}
-              onPress={() => navigation.navigate('Schools', { carrera: selectedCareer || careers[0] })}
-              disabled={(selectedCareer || careers[0]) ? false : true}
+              onPress={() => {
+                const carreraParam = (selectedCareer ?? careers[0] ?? 'Biología').toString().trim();
+                navigation.navigate('SchoolsMap', { carrera: carreraParam });
+              }}
+              disabled={!((selectedCareer ?? careers[0] ?? '').toString().trim())}
             >
               Ver en mapa
             </Button>

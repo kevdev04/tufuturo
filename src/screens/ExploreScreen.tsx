@@ -11,7 +11,7 @@ import GeminiService from '../services/gemini';
 import Input from '../components/ui/Input';
 import GeminiStatusButton from '../components/learning/GeminiStatusButton';
 import SideDrawer from '../components/SideDrawer';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
 const ExploreScreen: React.FC = () => {

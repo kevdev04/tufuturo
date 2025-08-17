@@ -13,7 +13,7 @@ type School = {
 };
 
 const HOST_BASE = 'https://tu-futuro-backend-production.up.railway.app';
-const API_URL = `${HOST_BASE}/api/escuelas`;
+const API_URL = `${HOST_BASE}/escuelas`;
 
 const sampleData: Record<string, School[]> = {
   // Minimal sample to ensure the screen renders if API is unavailable
@@ -141,7 +141,10 @@ const SchoolsMapScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  // query state used for fetching
   const [career, setCareer] = useState<string>(route?.params?.carrera ?? 'Biología');
+  // input state used while typing (does not trigger fetch)
+  const [searchText, setSearchText] = useState<string>(route?.params?.carrera ?? 'Biología');
 
   useEffect(() => {
     let isMounted = true;
@@ -202,12 +205,12 @@ const SchoolsMapScreen: React.FC = () => {
               style={styles.input}
               placeholder="Buscar por carrera (ej. Biología)"
               placeholderTextColor={violetTheme.colors.muted}
-              value={career}
-              onChangeText={setCareer}
+              value={searchText}
+              onChangeText={setSearchText}
               returnKeyType="search"
-              onSubmitEditing={() => setCareer((c) => c.trim())}
+              onSubmitEditing={() => setCareer(searchText.trim() || 'Biología')}
             />
-            <TouchableOpacity style={styles.searchButton} onPress={() => setCareer((c) => c.trim() || 'Biología')}>
+            <TouchableOpacity style={styles.searchButton} onPress={() => setCareer(searchText.trim() || 'Biología')}>
               <Text style={styles.searchButtonText}>Buscar</Text>
             </TouchableOpacity>
           </View>

@@ -7,6 +7,7 @@ import {
   TextStyle,
   ActivityIndicator,
   View,
+  StyleProp,
 } from 'react-native';
 import { violetTheme } from '../../theme/colors';
 
@@ -17,8 +18,8 @@ export interface ButtonProps {
   loading?: boolean;
   onPress?: () => void;
   children: React.ReactNode;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 const Button: React.FC<ButtonProps> = ({

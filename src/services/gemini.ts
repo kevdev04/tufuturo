@@ -1,4 +1,4 @@
-const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+const API_KEY = "AIzaSyBwigpTFCzZdN1Vbk3Fprtfn2PEmHvqoz4";
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 export interface RiasecScores {
@@ -43,6 +43,21 @@ export interface LearningModule {
 export interface LearningPlanResponse {
   track: string; // e.g., 'Ruta introductoria a Analítica de Datos'
   modules: LearningModule[];
+}
+
+export interface CareerAdviceRequest {
+  riasecScores: RiasecScores;
+  topDimensions: string[];
+  education?: string;
+  skills?: string[];
+  interests?: string[];
+  location?: string;
+}
+
+export interface CareerAdviceResponse {
+  title: string;
+  summary: string;
+  careers: { name: string; why: string; nextSteps: string[] }[];
 }
 
 function buildPrompt(req: VolunteerPlanRequest): string {
@@ -157,7 +172,7 @@ export async function generateLearningPlan(req: LearningPlanRequest): Promise<Le
   }
 }
 
-export default { generateVolunteerPlan };
+// default export is declared at the end to include all public functions
 // Simple connectivity check to Gemini
 export async function pingGemini(): Promise<{ ok: boolean; reason?: string }> {
   try {
@@ -182,7 +197,46 @@ export async function pingGemini(): Promise<{ ok: boolean; reason?: string }> {
     return { ok: false, reason: e?.message || String(e) };
   }
 }
+ 
+export async function generateCareerAdvice(req: CareerAdviceRequest): Promise<CareerAdviceResponse> {
+  if (!API_KEY) throw new Error('Missing EXPO_PUBLIC_GEMINI_API_KEY');
+  const lines = [
+    'You are a career counselor. Return STRICT JSON only, no extra text.',
+    'Schema: {"title": string, "summary": string, "careers": [{"name": string, "why": string, "nextSteps": string[]}]}',
+    `RIASEC scores: ${JSON.stringify(req.riasecScores)}; Top: ${req.topDimensions.join(', ')}`,
+    req.education ? `Education: ${req.education}` : '',
+    `Skills: ${(req.skills || []).join(', ') || '—'}`,
+    `Interests: ${(req.interests || []).join(', ') || '—'}`,
+    req.location ? `Location (city, country): ${req.location}` : '',
+    'Guidelines: 3–5 careers. Keep "summary" to 2 sentences. Use clear, concise language for teens.',
+  ].filter(Boolean).join('\n');
 
-export { generateLearningPlan };
+  const response = await fetch(`${GEMINI_ENDPOINT}?key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: lines }] }],
+      generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+    }),
+  });
+  if (!response.ok) throw new Error(`Gemini error ${response.status}`);
+  const data = await response.json();
+  const text = extractTextFromGemini(data);
+  try {
+    const parsed = tryParseJson(text) ?? {};
+    const careers = Array.isArray(parsed.careers) ? parsed.careers : [];
+    return {
+      title: typeof parsed.title === 'string' ? parsed.title : 'Career Recommendations',
+      summary: typeof parsed.summary === 'string' ? parsed.summary : '',
+      careers: careers.map((c: any) => ({
+        name: typeof c?.name === 'string' ? c.name : 'Career',
+        why: typeof c?.why === 'string' ? c.why : '',
+        nextSteps: Array.isArray(c?.nextSteps) ? c.nextSteps : [],
+      })),
+    };
+  } catch {
+    return { title: 'Career Recommendations', summary: text?.slice(0, 200) || '', careers: [] };
+  }
+}
 
-
+export default { generateVolunteerPlan, generateCareerAdvice };

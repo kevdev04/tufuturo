@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { violetTheme } from '../../theme/colors';
-import Button from '../ui/Button';
 import { Ionicons } from '@expo/vector-icons';
 import { useVoiceAssistant } from '../../hooks/useVoiceAssistant';
+import RadarChart from '../learning/RadarChart';
 
 type Dimension = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
 
@@ -16,6 +16,15 @@ interface QuestionItem {
 export interface RiasecScores {
   R: number; I: number; A: number; S: number; E: number; C: number;
 }
+const DIMENSION_LABELS: Record<Dimension, string> = {
+  R: 'Realista',
+  I: 'Investigativo',
+  A: 'Artístico',
+  S: 'Social',
+  E: 'Emprendedor',
+  C: 'Convencional',
+};
+
 
 interface Props {
   onComplete?: (
@@ -53,35 +62,19 @@ const valuesScale = [
 
 const interests: QuestionItem[] = [
   { id: 'i1', text: 'Resolver problemas matemáticos o lógicos.', dim: 'I' },
-  { id: 'i2', text: 'Escribir, leer o comunicar ideas.', dim: 'A' },
   { id: 'i3', text: 'Dibujar, diseñar o crear cosas artísticas.', dim: 'A' },
-  { id: 'i4', text: 'Organizar actividades, eventos o equipos.', dim: 'E' },
-  { id: 'i5', text: 'Investigar cómo funcionan las cosas.', dim: 'I' },
-  { id: 'i6', text: 'Ayudar a otras personas con sus problemas.', dim: 'S' },
-  { id: 'i7', text: 'Trabajar con tecnología y computadoras.', dim: 'I' },
   { id: 'i8', text: 'Estar en contacto con la naturaleza o animales.', dim: 'R' },
-  { id: 'i9', text: 'Vender, persuadir o negociar con otros.', dim: 'E' },
 ];
 
 const skills: QuestionItem[] = [
-  { id: 's1', text: 'Explicar temas a otras personas.', dim: 'S' },
   { id: 's2', text: 'Analizar datos o información.', dim: 'I' },
-  { id: 's3', text: 'Dibujar, música o arte.', dim: 'A' },
-  { id: 's4', text: 'Tomar decisiones rápidas bajo presión.', dim: 'E' },
   { id: 's5', text: 'Liderar o coordinar un equipo.', dim: 'E' },
-  { id: 's6', text: 'Aprender nuevas tecnologías.', dim: 'I' },
   { id: 's7', text: 'Reparar o construir cosas manualmente.', dim: 'R' },
 ];
 
 const valuesQ: QuestionItem[] = [
-  { id: 'v1', text: 'Ganar buen sueldo.', dim: 'E' },
   { id: 'v2', text: 'Estabilidad y seguridad laboral.', dim: 'C' },
-  { id: 'v3', text: 'Libertad creativa.', dim: 'A' },
   { id: 'v4', text: 'Ayudar a otros y tener impacto social.', dim: 'S' },
-  { id: 'v5', text: 'Trabajar con personas.', dim: 'S' },
-  { id: 'v6', text: 'Viajar y conocer lugares nuevos.', dim: 'E' },
-  { id: 'v7', text: 'Innovar y usar nuevas tecnologías.', dim: 'I' },
-  { id: 'v8', text: 'Tener horarios flexibles.', dim: 'A' },
 ];
 
 const initialScores: RiasecScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
@@ -156,6 +149,14 @@ const RIASECAssessment: React.FC<Props> = ({ onComplete }) => {
       });
     }
   };
+
+  // Auto-complete once all questions are answered
+  const totalQuestions = interests.length + skills.length + valuesQ.length;
+  useEffect(() => {
+    if (Object.keys(answers).length >= totalQuestions) {
+      handleComplete();
+    }
+  }, [answers, totalQuestions]);
 
   const renderScale = (qid: string, scale: { label: string; value: number }[]) => (
     <View style={styles.scaleRow}>
@@ -236,22 +237,14 @@ const RIASECAssessment: React.FC<Props> = ({ onComplete }) => {
 
       <View style={styles.resultContainer}>
         <Text style={styles.resultTitle}>Perfil (RIASEC)</Text>
-        <View style={styles.bars}>
-          {(Object.keys(result) as Dimension[]).map(dim => (
-            <View key={dim} style={styles.barRow}>
-              <Text style={styles.barLabel}>{dim}</Text>
-              <View style={styles.barTrack}>
-                <View style={[styles.barFill, { width: `${Math.min(100, result[dim] * 8)}%` }]} />
-              </View>
-              <Text style={styles.barValue}>{result[dim]}</Text>
-            </View>
-          ))}
+        <View style={styles.radarWrapper}>
+          <RadarChart scores={result as any} size={260} max={16} />
         </View>
+        <Text style={styles.resultSubtitle}>
+          Dimensiones destacadas: {sortedDims.slice(0, 2).map(d => `${d} (${DIMENSION_LABELS[d]})`).join(', ')}
+        </Text>
       </View>
-
-      <Button variant="default" size="lg" onPress={handleComplete}>
-        Ver resultados y continuar
-      </Button>
+      {/* The submit button has been removed; parent screen will control submit */}
     </View>
   );
 };
@@ -336,7 +329,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: violetTheme.colors.border,
     borderRadius: violetTheme.borderRadius.md,
-    backgroundColor: violetTheme.colors.accent,
+    backgroundColor: violetTheme.colors.card,
   },
   resultTitle: {
     fontSize: 16,
@@ -344,35 +337,14 @@ const styles = StyleSheet.create({
     marginBottom: violetTheme.spacing.sm,
     color: violetTheme.colors.foreground,
   },
-  bars: {
-    gap: 8,
-  },
-  barRow: {
-    flexDirection: 'row',
+  radarWrapper: {
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  barLabel: {
-    width: 18,
-    fontWeight: '700',
-    color: violetTheme.colors.foreground,
-  },
-  barTrack: {
-    flex: 1,
-    height: 8,
-    backgroundColor: violetTheme.colors.violet100,
-    borderRadius: 4,
-  },
-  barFill: {
-    height: 8,
-    backgroundColor: violetTheme.colors.primary,
-    borderRadius: 4,
-  },
-  barValue: {
-    width: 28,
-    textAlign: 'right',
+  resultSubtitle: {
+    textAlign: 'center',
     color: violetTheme.colors.muted,
-    fontSize: 12,
+    marginTop: 8,
   },
 });
 

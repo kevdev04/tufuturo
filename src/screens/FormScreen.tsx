@@ -17,7 +17,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useLanguage } from '../context/LanguageContext';
 import RIASECAssessment, { RiasecScores } from '../components/assessment/RIASECAssessment';
-import GeminiService from '../services/gemini';
+import GeminiService, { generateCareerAdvice } from '../services/gemini';
 import { useOnboarding } from '../context/OnboardingContext';
 
 const FormScreen: React.FC = () => {
@@ -33,6 +33,9 @@ const FormScreen: React.FC = () => {
   const [riasec, setRiasec] = useState<RiasecScores | null>(null);
   const [riasecTop, setRiasecTop] = useState<string[]>([]);
   const [answeredPayload, setAnsweredPayload] = useState<any>(null);
+  const [adviceVisible, setAdviceVisible] = useState(false);
+  const [advice, setAdvice] = useState<{ title: string; summary: string; careers: { name: string; why: string; nextSteps: string[] }[] } | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const {
     setAssessmentCompleted,
     setVolunteerPlan,
@@ -150,6 +153,7 @@ const FormScreen: React.FC = () => {
     }
     
     try {
+      setIsGenerating(true);
       const plan = await GeminiService.generateVolunteerPlan({
         riasecScores: riasec,
         topDimensions: riasecTop,
@@ -163,11 +167,22 @@ const FormScreen: React.FC = () => {
       await setVolunteerPlan({ categories: plan.categories, suggestedKeywords: plan.suggestedKeywords, rationale: plan.rationale });
       await setLocation(formData.location);
       await setAssessmentCompleted(true);
-      Alert.alert('Sugerencias listas', `Categorías: ${plan.categories.join(', ') || '—'}\nPalabras clave: ${plan.suggestedKeywords.join(', ') || '—'}`);
-      console.log('Gemini plan:', plan);
+      // Now request career advice and show in-app modal
+      const adviceResp = await generateCareerAdvice({
+        riasecScores: riasec,
+        topDimensions: riasecTop,
+        education: formData.education,
+        skills: formData.skills,
+        interests: formData.interests,
+        location: formData.location,
+      });
+      setAdvice(adviceResp);
+      setAdviceVisible(true);
     } catch (err: any) {
       console.error('Gemini error:', err);
       Alert.alert('No se pudo generar sugerencias', String(err?.message || err));
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -358,10 +373,10 @@ const FormScreen: React.FC = () => {
               <Button
                 variant="default"
                 size="lg"
-                style={styles.submitButton}
+                style={[styles.submitButton, { backgroundColor: violetTheme.colors.primary }]}
                 onPress={handleSubmit}
               >
-                <Ionicons name="rocket" size={20} color={violetTheme.colors.primaryForeground} />
+                <Ionicons name="sparkles" size={20} color={violetTheme.colors.primaryForeground} />
                 <Text style={styles.submitButtonText}>Get Career Recommendations</Text>
               </Button>
             </View>
@@ -412,6 +427,70 @@ const FormScreen: React.FC = () => {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Career Advice Modal (in-app UI) */}
+      <Modal
+        visible={adviceVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAdviceVisible(false)}
+      >
+        <View style={styles.adviceOverlay}>
+          <View style={styles.adviceCard}>
+            <View style={styles.adviceHeader}>
+              <Text style={styles.adviceTitle}>{advice?.title || 'Career Recommendations'}</Text>
+              <TouchableOpacity onPress={() => setAdviceVisible(false)}>
+                <Ionicons name="close" size={22} color={violetTheme.colors.muted} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ maxHeight: 420 }}>
+              {!!advice?.summary && (
+                <Text style={styles.adviceSummary}>{advice.summary}</Text>
+              )}
+              {(advice?.careers || []).map((c, idx) => (
+                <View key={idx} style={styles.careerItem}>
+                  <View style={styles.careerHeader}>
+                    <Ionicons name="briefcase-outline" size={18} color={violetTheme.colors.primary} />
+                    <Text style={styles.careerName}>{c.name}</Text>
+                  </View>
+                  {!!c.why && <Text style={styles.careerWhy}>{c.why}</Text>}
+                  {Array.isArray(c.nextSteps) && c.nextSteps.length > 0 && (
+                    <View style={styles.nextSteps}>
+                      {c.nextSteps.map((s, i) => (
+                        <View key={i} style={styles.nextStepRow}>
+                          <Ionicons name="checkmark-circle-outline" size={16} color={violetTheme.colors.primary} />
+                          <Text style={styles.nextStepText}>{s}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              ))}
+              {(!advice || advice.careers.length === 0) && (
+                <Text style={styles.adviceEmpty}>No detailed careers received. Try again later.</Text>
+              )}
+            </ScrollView>
+            <Button
+              variant="default"
+              size="lg"
+              style={{ marginTop: violetTheme.spacing.md }}
+              onPress={() => setAdviceVisible(false)}
+            >
+              <Text style={{ color: violetTheme.colors.primaryForeground, fontWeight: '600' }}>Close</Text>
+            </Button>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Full-screen loading overlay while generating */}
+      <Modal visible={isGenerating} transparent animationType="fade">
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingCard}>
+            <ActivityIndicator size="large" color={violetTheme.colors.primary} />
+            <Text style={styles.loadingText}>Generating your career recommendations…</Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -442,7 +521,7 @@ const styles = StyleSheet.create({
     marginBottom: violetTheme.spacing.lg,
   },
   section: {
-    marginBottom: violetTheme.spacing.md,
+    marginBottom: violetTheme.spacing.xl,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -593,8 +672,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   submitSection: {
-    marginTop: violetTheme.spacing.md,
-    paddingTop: violetTheme.spacing.sm,
+    marginTop: violetTheme.spacing.xl,
+    paddingTop: violetTheme.spacing.md,
     borderTopWidth: 1,
     borderTopColor: violetTheme.colors.border,
   },
@@ -602,10 +681,113 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: violetTheme.borderRadius.lg,
+    paddingVertical: violetTheme.spacing.md,
+    shadowColor: violetTheme.shadows.md.shadowColor,
+    shadowOffset: violetTheme.shadows.md.shadowOffset,
+    shadowOpacity: violetTheme.shadows.md.shadowOpacity,
+    shadowRadius: violetTheme.shadows.md.shadowRadius,
+    elevation: violetTheme.shadows.md.elevation,
   },
   submitButtonText: {
     marginLeft: violetTheme.spacing.sm,
     fontSize: 16,
+    fontWeight: '700',
+    color: violetTheme.colors.primaryForeground,
+  },
+  adviceOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: violetTheme.spacing.lg,
+  },
+  adviceCard: {
+    width: '100%',
+    maxWidth: 520,
+    backgroundColor: violetTheme.colors.background,
+    borderRadius: violetTheme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: violetTheme.colors.border,
+    padding: violetTheme.spacing.lg,
+    shadowColor: violetTheme.shadows.lg.shadowColor,
+    shadowOffset: violetTheme.shadows.lg.shadowOffset,
+    shadowOpacity: violetTheme.shadows.lg.shadowOpacity,
+    shadowRadius: violetTheme.shadows.lg.shadowRadius,
+    elevation: violetTheme.shadows.lg.elevation,
+  },
+  adviceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: violetTheme.spacing.sm,
+  },
+  adviceTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: violetTheme.colors.foreground,
+  },
+  adviceSummary: {
+    color: violetTheme.colors.muted,
+    marginBottom: violetTheme.spacing.md,
+  },
+  careerItem: {
+    paddingVertical: violetTheme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: violetTheme.colors.border,
+  },
+  careerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: violetTheme.spacing.xs,
+  },
+  careerName: {
+    marginLeft: violetTheme.spacing.xs,
+    fontWeight: '600',
+    color: violetTheme.colors.foreground,
+  },
+  careerWhy: {
+    marginTop: 4,
+    color: violetTheme.colors.foreground,
+  },
+  nextSteps: {
+    marginTop: violetTheme.spacing.xs,
+    gap: 6,
+  },
+  nextStepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  nextStepText: {
+    color: violetTheme.colors.foreground,
+  },
+  adviceEmpty: {
+    color: violetTheme.colors.muted,
+    fontStyle: 'italic',
+    paddingVertical: violetTheme.spacing.md,
+  },
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: violetTheme.spacing.lg,
+  },
+  loadingCard: {
+    width: '85%',
+    maxWidth: 420,
+    backgroundColor: violetTheme.colors.background,
+    borderRadius: violetTheme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: violetTheme.colors.border,
+    padding: violetTheme.spacing.lg,
+    alignItems: 'center',
+    gap: violetTheme.spacing.md,
+  },
+  loadingText: {
+    color: violetTheme.colors.muted,
+    textAlign: 'center',
     fontWeight: '600',
   },
 });

@@ -53,16 +53,14 @@ const RadarChart: React.FC<Props> = ({ scores, size = 220, max = 20 }) => {
       ))}
       <Polygon points={points} fill="rgba(113,1,235,0.2)" stroke="#7101eb" strokeWidth={2} />
       {order.map((k, i) => (
-        <>
+        <React.Fragment key={`axis-${k}`}>
           <Circle
-            key={`dot-${k}`}
             cx={center + radius * Math.cos(i * angle - Math.PI / 2)}
             cy={center + radius * Math.sin(i * angle - Math.PI / 2)}
             r={3}
             fill="#7101eb"
           />
           <SvgText
-            key={`lbl-${k}`}
             x={center + (radius + 12) * Math.cos(i * angle - Math.PI / 2)}
             y={center + (radius + 12) * Math.sin(i * angle - Math.PI / 2)}
             fontSize="12"
@@ -71,7 +69,7 @@ const RadarChart: React.FC<Props> = ({ scores, size = 220, max = 20 }) => {
           >
             {k}
           </SvgText>
-        </>
+        </React.Fragment>
       ))}
     </Svg>
   );

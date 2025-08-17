@@ -105,12 +105,35 @@ const ExploreScreen: React.FC = () => {
     setVolsLoading(true);
     try {
       const filters: any = { location: 'mx' };
-      if (volunteerPlan?.categories?.length) filters.career = volunteerPlan.categories;
-      const kw = [...(volunteerPlan?.suggestedKeywords || [])].filter(Boolean);
+      // Carrera prioritaria: de params o del plan
+      const chosenCareer = (route as any)?.params?.carrera || (volunteerPlan?.categories?.[0]);
+      if (chosenCareer) filters.career = [chosenCareer];
+      // Keywords: params (area/carrera/subarea) + plan
+      const kw = [
+        (route as any)?.params?.area,
+        (route as any)?.params?.carrera,
+        (route as any)?.params?.subarea,
+        ...(volunteerPlan?.suggestedKeywords || []),
+      ].filter((v): v is string => typeof v === 'string' && v.trim().length > 0);
       if (kw.length) filters.keywords = Array.from(new Set(kw));
-      const resp = await mcp.volunteer.mxSearch({ filters });
-      const arr = extractResultsArray(resp).map((x: any, i: number) => normalizeVolunteerOpportunity(x, i));
-      setVols(arr);
+      // Ciudad preferida del usuario
+      if (location && typeof location === 'string' && location.trim()) filters.city = location.trim();
+
+      // Try with full filters, then relax if empty
+      const tryFetch = async (f: any) => {
+        const resp = await mcp.volunteer.mxSearch({ filters: f });
+        const items = extractResultsArray(resp).map((x: any, i: number) => normalizeVolunteerOpportunity(x, i));
+        return items;
+      };
+
+      let results = await tryFetch(filters);
+      if (results.length === 0 && kw.length) {
+        results = await tryFetch({ location: 'mx', keywords: kw });
+      }
+      if (results.length === 0) {
+        results = await tryFetch({ location: 'mx' });
+      }
+      setVols(results);
     } catch (e) {
       setVols([]);
     } finally {
